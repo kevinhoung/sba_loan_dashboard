@@ -89,8 +89,9 @@ test('acquisition industries rank by charge-off rate and keep loan-count bars', 
   assert.match(nasty, /Repair &lt;img alt=&quot;x&quot; onerror=&quot;alert\(1\)&quot;&gt;/);
 
   const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  assert.match(page, /id="acqIndustryChart" class="industry-rank"/);
-  assert.match(page, /acquisitionIndustryListHtml\(DATA\.acq_industries, sort\)/);
+  assert.match(page, /class="industry-rank"/);
+  assert.match(page, /id="acqIndustryChart"/);
+  assert.match(page, /acquisitionIndustryListHtml\(DATA\.acq_industries, industrySort\)/);
   assert.match(page, /Acquisition industries are ordered by charge-off rate, lowest first\. Missing rates sort last\./);
   assert.match(page, /Charge-off 5% or less/);
   assert.match(page, /Bar length is the number of acquisition loans\./);

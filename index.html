@@ -78,7 +78,8 @@
   #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; min-width: 0; }
   #themeToggle { display: inline-block; vertical-align: middle; margin-left: 12px; white-space: nowrap; background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
-  .tab { appearance: none; background: var(--panel); border: 1px solid var(--border); border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 18px; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); cursor: pointer; border-radius: 10px 10px 0 0; }
+  .tab { appearance: none; display: inline-flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 18px; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--heading); cursor: pointer; border-radius: 10px 10px 0 0; }
+  .tab-icon { width: 16px; height: 16px; flex: none; display: block; }
   .tab:hover { background: var(--panel2); }
   .tab.active { border-bottom-color: var(--accent); background: var(--panel); }
   .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -121,16 +122,22 @@
   .industry-pop[hidden] { display: none !important; }
   .industry-pop strong, .industry-pop span { display: block; }
   .industry-pop strong { margin-bottom: 4px; font-size: 12px; font-weight: 600; }
-  .industry-head { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin: 0 0 12px; }
-  .industry-head h2 { margin: 0; }
-  .industry-sort { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; font-size: 13px; color: var(--ink-dim); }
-  .industry-sort select { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; line-height: 1.3; max-width: 100%; cursor: pointer; }
-  .industry-sort select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .industry-rank-head { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(110px, 32%) auto; align-items: center; column-gap: 12px; padding: 0 4px 8px; margin-bottom: 2px; border-bottom: 1px solid var(--ink-dim); }
+  .industry-col { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12px; font-weight: 500; color: var(--ink-dim); cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; white-space: nowrap; }
+  .industry-col-end { justify-content: flex-end; }
+  .industry-col:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .col-arrows { display: inline-flex; opacity: 0.35; }
+  .industry-col:hover .col-arrows, .industry-col.is-sorted .col-arrows { opacity: 1; }
+  .col-arrows .arrow-up, .col-arrows .arrow-down { fill: currentColor; opacity: 0.45; }
+  .industry-col[aria-sort="ascending"] .arrow-up, .industry-col[aria-sort="descending"] .arrow-down { opacity: 1; }
+  [data-theme="light"] .industry-col { color: var(--heading); }
   .industry-legend { margin: 0 0 14px; }
   .industry-legend-ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: var(--ink); }
   .industry-legend-ranges .legend-range { display: inline-flex; align-items: center; white-space: nowrap; }
   .industry-legend .sub { margin: 0; }
   @media (max-width: 700px) {
+    .industry-rank-head { grid-template-columns: minmax(0, 1fr) auto auto; }
+    .industry-rank-head-gap { display: none; }
     .industry-rank-row { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name rate count" "bar bar bar"; row-gap: 6px; }
     .industry-rank-row > .industry-name { grid-area: name; }
     .industry-rank-rate { grid-area: rate; }
@@ -251,9 +258,9 @@
 </div>
 
 <div class="tabs" role="tablist">
-  <button type="button" class="tab active" data-tab="focus" role="tab" aria-selected="true">Acquisition Focus</button>
-  <button type="button" class="tab" data-tab="explorer" role="tab" aria-selected="false">Full Explorer</button>
-  <button type="button" class="tab" data-tab="methods" role="tab" aria-selected="false">Methodology &amp; Sources</button>
+  <button type="button" class="tab active" data-tab="focus" role="tab" aria-selected="true"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 L13.4 13.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Acquisition Focus</button>
+  <button type="button" class="tab" data-tab="explorer" role="tab" aria-selected="false"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.3 5.7 L8.7 8.7 L5.7 10.3 L7.3 7.3 Z" fill="currentColor"/></svg>Full Explorer</button>
+  <button type="button" class="tab" data-tab="methods" role="tab" aria-selected="false"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 h6.1 L13 5.3 V13.5 H4 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 2.7 V5.3 H13 M6.2 8.2 H10.8 M6.2 10.7 H10.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Methodology &amp; Sources</button>
 </div>
 
 <!-- ================== FOCUS TAB ================== -->
@@ -265,20 +272,7 @@
   </div>
 
   <div class="panel">
-    <div class="industry-head">
-      <h2>Acquisition Industries</h2>
-      <div class="industry-sort">
-        <label for="industrySort">Sort</label>
-        <select id="industrySort">
-          <option value="chargeoff-asc" selected>Charge-off, lowest first</option>
-          <option value="chargeoff-desc">Charge-off, highest first</option>
-          <option value="loans-desc">Loans, most first</option>
-          <option value="loans-asc">Loans, fewest first</option>
-          <option value="name-asc">Industry, A to Z</option>
-          <option value="name-desc">Industry, Z to A</option>
-        </select>
-      </div>
-    </div>
+    <h2>Acquisition Industries</h2>
     <div class="industry-legend">
       <div class="industry-legend-ranges">
         <span class="legend-range"><span class="swatch" style="background:var(--bar-good)"></span> Charge-off 5% or less</span>
@@ -287,7 +281,15 @@
       </div>
       <p class="sub">Bar length is the number of acquisition loans.</p>
     </div>
-    <div id="acqIndustryChart" class="industry-rank"></div>
+    <div class="industry-rank">
+      <div class="industry-rank-head">
+        <button type="button" class="industry-col" data-sort-key="name" aria-sort="none">Industry<span class="col-arrows" aria-hidden="true"><svg viewBox="0 0 10 14" width="10" height="14"><path class="arrow-up" d="M5 0.8 L8.7 5.4 H1.3 Z"/><path class="arrow-down" d="M5 13.2 L1.3 8.6 H8.7 Z"/></svg></span></button>
+        <button type="button" class="industry-col industry-col-end" data-sort-key="chargeoff" aria-sort="ascending">Charge-off<span class="col-arrows" aria-hidden="true"><svg viewBox="0 0 10 14" width="10" height="14"><path class="arrow-up" d="M5 0.8 L8.7 5.4 H1.3 Z"/><path class="arrow-down" d="M5 13.2 L1.3 8.6 H8.7 Z"/></svg></span></button>
+        <span class="industry-rank-head-gap" aria-hidden="true"></span>
+        <button type="button" class="industry-col industry-col-end" data-sort-key="loans" aria-sort="none">Loans<span class="col-arrows" aria-hidden="true"><svg viewBox="0 0 10 14" width="10" height="14"><path class="arrow-up" d="M5 0.8 L8.7 5.4 H1.3 Z"/><path class="arrow-down" d="M5 13.2 L1.3 8.6 H8.7 Z"/></svg></span></button>
+      </div>
+      <div id="acqIndustryChart"></div>
+    </div>
   </div>
 
   <div class="panel">
@@ -580,10 +582,20 @@ function axis(title, beginAtZero) {
   return scale;
 }
 
+let industrySort = 'chargeoff-asc';
+function syncIndustrySortHeaders() {
+  const key = industrySort.startsWith('name') ? 'name' : industrySort.startsWith('loans') ? 'loans' : 'chargeoff';
+  const direction = industrySort.endsWith('desc') ? 'descending' : 'ascending';
+  document.querySelectorAll('.industry-col').forEach((button) => {
+    const active = button.dataset.sortKey === key;
+    button.setAttribute('aria-sort', active ? direction : 'none');
+    button.classList.toggle('is-sorted', active);
+  });
+}
 function paintAcquisitionIndustries() {
-  const sort = document.getElementById('industrySort').value;
-  document.getElementById('acqIndustryChart').innerHTML = acquisitionIndustryListHtml(DATA.acq_industries, sort)
+  document.getElementById('acqIndustryChart').innerHTML = acquisitionIndustryListHtml(DATA.acq_industries, industrySort)
     || '<p class="sub">No acquisition loans in this selection.</p>';
+  syncIndustrySortHeaders();
 }
 
 function renderDashboard(nextData) {
@@ -1051,8 +1063,14 @@ function syncThemeButton() {
   button.setAttribute('aria-label', dark ? 'Switch to light colors' : 'Switch to dark colors');
 }
 syncThemeButton();
-document.getElementById('industrySort').addEventListener('change', () => {
-  if (DATA) paintAcquisitionIndustries();
+document.querySelector('.industry-rank-head').addEventListener('click', (event) => {
+  const button = event.target.closest('.industry-col');
+  if (!button || !DATA) return;
+  const key = button.dataset.sortKey;
+  const active = industrySort.startsWith(key);
+  const descending = industrySort.endsWith('desc');
+  industrySort = key + '-' + (active && !descending ? 'desc' : 'asc');
+  paintAcquisitionIndustries();
 });
 document.getElementById('themeToggle').addEventListener('click', () => {
   const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';

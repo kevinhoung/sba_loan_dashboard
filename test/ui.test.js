@@ -13,7 +13,7 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.match(page, /localStorage\.getItem\('sba-theme'\)/);
   assert.match(page, /\.picker\.open \.options \{ display: block; \}/);
   assert.match(page, /Typical acquisition/);
-  assert.match(page, /<h1>SBA Acquisitions<\/h1>/);
+  assert.match(page, /<h1>SBA Acquisitions Loans<\/h1>/);
   assert.match(page, /<h2>Acquisition Industries<\/h2>/);
   assert.match(page, /<h2>Monthly Approvals<\/h2>/);
   assert.match(page, /--bg: #0b1020/);

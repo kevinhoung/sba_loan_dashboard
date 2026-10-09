@@ -70,10 +70,10 @@
   body { padding: 28px 24px 40px; max-width: 1120px; margin: 0 auto; }
   .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
   h1, h2 { color: var(--heading); }
-  .topbar h1 { margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
-  .topbar-side { display: flex; align-items: center; gap: 14px; }
-  #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; }
-  #themeToggle { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  .topbar-title { min-width: 0; max-width: 100%; }
+  .topbar h1 { display: inline; margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
+  #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; min-width: 0; }
+  #themeToggle { display: inline-block; vertical-align: middle; margin-left: 12px; white-space: nowrap; background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
   .tab { appearance: none; background: var(--panel); border: 1px solid var(--border); border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 18px; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); cursor: pointer; border-radius: 10px 10px 0 0; }
   .tab:hover { background: var(--panel2); }
@@ -126,7 +126,7 @@
     .industry-rank-track { grid-area: bar; }
   }
   @media (max-width: 800px) {
-    .topbar, .topbar-side { align-items: flex-start; flex-direction: column; }
+    .topbar { align-items: stretch; flex-direction: column; }
     #whereStatus { text-align: left; }
     .kpi-strip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 16px 24px; }
     .kpi, .kpi:first-child, .kpi:last-child { border-right: 0; padding: 0; }
@@ -205,11 +205,11 @@
 </head>
 <body>
 <header class="topbar">
-  <h1>SBA Acquisitions</h1>
-  <div class="topbar-side">
-    <p id="whereStatus">United States · all states</p>
+  <div class="topbar-title">
+    <h1>SBA Acquisitions Loans</h1>
     <button type="button" id="themeToggle">Light</button>
   </div>
+  <p id="whereStatus">United States · all states</p>
 </header>
 
 <div class="panel" id="wherePanel">

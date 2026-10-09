@@ -35,3 +35,11 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.equal(page.includes('All Acquisition Lenders</h2>\n    <div id="acqLendersGrid"'), true);
   assert.equal(/<div class="row2">[\s\S]{0,400}All Acquisition Lenders/.test(page), false);
 });
+
+test('the document title is SBA Dashboard and a favicon is linked', () => {
+  const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const title = page.match(/<title>([^<]*)<\/title>/);
+  assert.equal(title && title[1], 'SBA Dashboard');
+  assert.match(page, /<link rel="icon" href="favicon\.svg" type="image\/svg\+xml"/);
+  assert.match(page, /<link rel="icon" href="favicon\.png" type="image\/png"/);
+});

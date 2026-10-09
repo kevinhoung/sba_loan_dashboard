@@ -90,6 +90,9 @@
   .bank-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
   .bank-mark { width: 22px; height: 22px; border-radius: 6px; background: #fff; object-fit: contain; flex: none; padding: 2px; box-sizing: border-box; }
   .bank-initials { display: inline-flex; align-items: center; justify-content: center; background: var(--panel2); color: var(--ink-dim); font-size: 9px; font-weight: 600; letter-spacing: 0.02em; padding: 0; line-height: 1; }
+  .industry-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+  .industry-mark { width: 18px; height: 18px; flex: none; color: var(--ink-dim); display: inline-flex; }
+  .industry-mark svg { width: 18px; height: 18px; display: block; }
   @media (max-width: 800px) {
     .topbar, .topbar-side { align-items: flex-start; flex-direction: column; }
     #whereStatus { text-align: left; }
@@ -361,6 +364,7 @@ import { barHover, indexHover, lineHover, monthTooltipLabel } from './src/charts
 import { geographyChoices } from './src/geography.js';
 import { unpackStateFile } from './src/loan-pack.js';
 import { industryCell, industryName } from './src/naics.js';
+import { industryHtml, industryMark } from './src/industry-icon.js';
 import { DEFAULT_SELECTION, retainSelection, selectionLabel, toggleSelection } from './src/selection.js';
 import { fillMonthGaps, monthlyPayment, summarize } from './src/summarize.js';
 import { bankMark } from './src/bank-logo.js';
@@ -579,7 +583,7 @@ const bestFit = DATA.acq_industries
 
 new gridjs.Grid({
   columns: [
-    { name: 'Industry', formatter: (_, r) => gridjs.html(industryCell(r.cells[0].data, r.cells[1].data)) },
+    { name: 'Industry', formatter: (_, r) => gridjs.html(industryHtml(industryCell(r.cells[0].data, r.cells[1].data), r.cells[0].data)) },
     { name: 'NAICS', hidden: true },
     { name: 'Acquisitions', ...num },
     { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
@@ -638,7 +642,7 @@ new gridjs.Grid({
     { name: 'Date' },
     { name: 'City' },
     { name: 'NAICS' },
-    { name: 'Industry' },
+    { name: 'Industry', formatter: (cell, row) => gridjs.html(industryMark(cell, row.cells[2].data)) },
     { name: 'Loan', ...num, formatter: c => '$' + Number(c).toLocaleString() },
     { name: 'Term', ...num },
     { name: 'Rate', ...num },
@@ -706,7 +710,7 @@ new Chart(document.getElementById('monthlyTrendChart'), {
 // ========== SECTOR GRID ==========
 new gridjs.Grid({
   columns: [
-    { name: 'Sector' },
+    { name: 'Sector', formatter: (cell) => gridjs.html(industryMark(cell)) },
     { name: 'Loans', ...num },
     { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...num },
     { id: 'distress', name: termHeader('Distress', DISTRESS_TIP), ...num },
@@ -787,7 +791,7 @@ function renderNaics3() {
   new gridjs.Grid({
     columns: [
       { name: 'NAICS' },
-      { name: 'Industry' },
+      { name: 'Industry', formatter: (cell, row) => gridjs.html(industryMark(cell, row.cells[0].data)) },
       { name: 'Sector' },
       { name: 'Loans', ...num },
       { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...num },

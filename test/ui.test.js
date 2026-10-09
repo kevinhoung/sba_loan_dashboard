@@ -22,4 +22,8 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.match(page, /<button type="button" class="tab active"/);
   assert.match(page, /\.tab:hover \{ background: var\(--panel2\); \}/);
   assert.match(page, /\.kpi \{ padding: 2px 22px;/);
+  assert.match(page, /Charged Off \(CHGOFF\) means the lender wrote off the loan balance as a loss/);
+  assert.match(page, /SBA does not publish a Distress status/);
+  assert.equal(page.split("termHeader('Charge-off'").length - 1, 3);
+  assert.equal(page.split("termHeader('Distress'").length - 1, 2);
 });

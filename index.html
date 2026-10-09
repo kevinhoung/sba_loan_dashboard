@@ -126,6 +126,10 @@
   .gridjs-th[data-align="end"], .gridjs-td[data-align="end"] { text-align: right !important; }
   button.gridjs-sort { float: none !important; display: inline-block !important; vertical-align: -4px; margin: 0 0 0 12px !important; }
   th.gridjs-th-sort .gridjs-th-content { float: none !important; display: inline !important; width: auto !important; }
+  .term { cursor: help; border-bottom: 1px dotted var(--ink-dim); }
+  .term-pop { position: fixed; z-index: 50; width: 280px; padding: 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18); font-size: 13px; font-weight: 400; line-height: 1.45; letter-spacing: 0; text-align: left; white-space: normal; }
+  .term-pop[hidden] { display: none !important; }
+  .term-pop strong { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; }
   .gridjs-sort { opacity: 0.35; }
   .gridjs-th:hover .gridjs-sort, .gridjs-sort-asc, .gridjs-sort-desc { opacity: 1; }
   .gridjs-search { float: none; margin: 2px 0 10px; }
@@ -378,6 +382,40 @@ function clearViews() {
 }
 const fmt$ = n => '$' + (n >= 1e6 ? (n/1e6).toFixed(2) + 'M' : n >= 1e3 ? (n/1e3).toFixed(0) + 'K' : Number(n).toLocaleString());
 const num = { attributes: { 'data-align': 'end' } };
+const CHARGEOFF_TIP = '<strong>SBA definition</strong>Charged Off (CHGOFF) means the lender wrote off the loan balance as a loss. The SBA charge-off amount is that full balance, both the guaranteed and unguaranteed portions. This column is the share of FY2020–2023 loans with that status.';
+const DISTRESS_TIP = '<strong>How this uses SBA statuses</strong>SBA does not publish a Distress status, and the public file has no delinquency flag. This is the share of those same FY2020–2023 loans that are charged off, still an undisbursed commitment (COMMIT), a legacy closed loan, or have a charge-off amount above $0.';
+function termHeader(label, tip) {
+  return gridjs.html('<span class="term" tabindex="0">' + label + '<span class="term-pop" role="tooltip" hidden>' + tip + '</span></span>');
+}
+document.addEventListener('mouseover', (event) => {
+  const term = event.target.closest?.('.term');
+  if (!term || term.contains(event.relatedTarget)) return;
+  const pop = term.querySelector('.term-pop');
+  pop.hidden = false;
+  const rect = term.getBoundingClientRect();
+  const width = Math.min(280, window.innerWidth - 24);
+  const alignEnd = term.closest('th')?.getAttribute('data-align') === 'end';
+  let left = alignEnd ? rect.right - width : rect.left;
+  left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+  let top = rect.bottom + 8;
+  pop.style.width = width + 'px';
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  if (top + pop.offsetHeight > window.innerHeight - 8) pop.style.top = Math.max(8, rect.top - pop.offsetHeight - 8) + 'px';
+});
+document.addEventListener('mouseout', (event) => {
+  const term = event.target.closest?.('.term');
+  if (!term || term.contains(event.relatedTarget)) return;
+  term.querySelector('.term-pop').hidden = true;
+});
+document.addEventListener('focusin', (event) => {
+  const term = event.target.closest?.('.term');
+  if (term) term.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+});
+document.addEventListener('focusout', (event) => {
+  const term = event.target.closest?.('.term');
+  if (term && !term.contains(event.relatedTarget)) term.querySelector('.term-pop').hidden = true;
+});
 const fmtN = n => Number(n).toLocaleString();
 const fmtPct = n => (n == null ? '—' : n.toFixed(1) + '%');
 
@@ -539,7 +577,7 @@ new gridjs.Grid({
     { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
     { name: 'Term', ...num, formatter: c => c + ' mo' },
     { name: 'Rate', ...num, formatter: c => c + '%' },
-    { name: 'Charge-off', ...num, formatter: c => c == null ? '—' : c + '%' },
+    { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...num, formatter: c => c == null ? '—' : c + '%' },
     { name: 'Sector' },
   ],
   data: bestFit.map(x => [x.code, x.desc, x.n, x.median_loan, x.avg_term, x.avg_rate, x.chgoff_rate, x.sector]),
@@ -662,8 +700,8 @@ new gridjs.Grid({
   columns: [
     { name: 'Sector' },
     { name: 'Loans', ...num },
-    { name: 'Charge-off', ...num },
-    { name: 'Distress', ...num },
+    { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...num },
+    { id: 'distress', name: termHeader('Distress', DISTRESS_TIP), ...num },
     { name: 'Paid in full', ...num },
     { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
     { name: 'Term', ...num },
@@ -744,8 +782,8 @@ function renderNaics3() {
       { name: 'Industry' },
       { name: 'Sector' },
       { name: 'Loans', ...num },
-      { name: 'Charge-off', ...num },
-      { name: 'Distress', ...num },
+      { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...num },
+      { id: 'distress', name: termHeader('Distress', DISTRESS_TIP), ...num },
       { name: 'Paid in full', ...num },
       { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
       { name: 'Term', ...num },

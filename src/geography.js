@@ -64,16 +64,15 @@ export function stateOption(state) {
 export function countyOption(county, state) {
   const key = countyKey(county, state);
   const name = countyName(county);
-  const suffix = /PARISH$/.test(normalizeText(county)) ? '' : ' County';
   const raw = normalizeText(county);
-  const labelName = COUNTY_SUFFIX.test(raw) ? titleCase(raw) : `${titleCase(name)}${suffix}`;
+  const labelName = COUNTY_SUFFIX.test(raw) || / CITY$/.test(raw) ? titleCase(raw) : `${titleCase(name)} County`;
   return { id: key, label: `${labelName}, ${normalizeState(state)}` };
 }
 
-export function cityOption(city, county, state) {
+export function cityOption(city, county, state, borrowerState = state) {
   return {
     id: cityKey(city, county, state),
-    label: titleCase(city),
+    label: borrowerCityLabel({ borrowerCity: city, borrowerState, projectState: state }),
     countyId: countyKey(county, state),
     state: normalizeState(state),
   };
@@ -120,6 +119,6 @@ export function geographyChoices(loans, selection = {}) {
   if (!selectedCounties.size) return { states, counties, cities: [] };
 
   const inCounties = inStates.filter((loan) => selectedCounties.has(loanCountyKey(loan)));
-  const cities = uniqueById(inCounties.map((loan) => cityOption(loan.borrowerCity, loan.projectCounty, loan.projectState)));
+  const cities = uniqueById(inCounties.map((loan) => cityOption(loan.borrowerCity, loan.projectCounty, loan.projectState, loan.borrowerState)));
   return { states, counties, cities };
 }

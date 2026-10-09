@@ -272,12 +272,18 @@ import { DEFAULT_SELECTION, retainSelection, selectionLabel, toggleSelection } f
 import { fillMonthGaps, monthlyPayment, summarize } from './src/summarize.js';
 let DATA = JSON.parse(document.getElementById('payload').textContent);
 const VIEW_IDS = ['bestFitGrid', 'acqLendersGrid', 'recentAcqGrid', 'sectorGrid', 'naics3Grid', 'citiesGrid', 'allLendersGrid'];
+function freshContainer(id) {
+  const node = document.getElementById(id);
+  const fresh = node.cloneNode(false);
+  node.replaceWith(fresh);
+  return fresh;
+}
 function clearViews() {
   document.querySelectorAll('canvas').forEach(canvas => {
     const chart = Chart.getChart(canvas);
     if (chart) chart.destroy();
   });
-  VIEW_IDS.forEach(id => { document.getElementById(id).innerHTML = ''; });
+  VIEW_IDS.forEach(freshContainer);
 }
 const fmt$ = n => '$' + (n >= 1e6 ? (n/1e6).toFixed(2) + 'M' : n >= 1e3 ? (n/1e3).toFixed(0) + 'K' : Number(n).toLocaleString());
 const fmtN = n => Number(n).toLocaleString();
@@ -640,8 +646,7 @@ function renderNaics3() {
   document.getElementById('chgoffFilterVal').textContent = maxChg + '%';
   document.getElementById('minNFilterVal').textContent = minN;
   const filtered = (DATA.naics3 || []).filter(x => x.chgoff_rate <= maxChg && x.n >= minN);
-  const wrap = document.getElementById('naics3Grid');
-  wrap.innerHTML = '';
+  const wrap = freshContainer('naics3Grid');
   new gridjs.Grid({
     columns: [
       { name: 'NAICS' },

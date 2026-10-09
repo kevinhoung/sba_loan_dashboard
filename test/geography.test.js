@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { filterLoans, geographyChoices } from '../src/geography.js';
+import { countyOption, filterLoans, geographyChoices } from '../src/geography.js';
 import { loan } from './helpers.js';
 
 const nevada = [
@@ -63,6 +63,16 @@ test('a trailing comma does not create a second city', () => {
     loan({ borrowerCity: 'Henderson,' }),
   ], { states: ['NV'], counties: ['CLARK|NV'] });
   assert.deepEqual(choices.cities.map((city) => city.label), ['Henderson']);
+});
+
+test('an independent city is not labeled as a county, and an out-of-state borrower keeps that state', () => {
+  assert.equal(countyOption('CARSON CITY', 'NV').label, 'Carson City, NV');
+  assert.equal(countyOption('CLARK', 'NV').label, 'Clark County, NV');
+  assert.equal(countyOption('ORLEANS PARISH', 'LA').label, 'Orleans Parish, LA');
+  const choices = geographyChoices([
+    loan({ borrowerCity: 'Orlando', borrowerState: 'FL', projectCounty: 'CLARK', projectState: 'NV' }),
+  ], { states: ['NV'], counties: ['CLARK|NV'] });
+  assert.equal(choices.cities[0].label, 'Orlando, FL');
 });
 
 test('two states can be selected together', () => {

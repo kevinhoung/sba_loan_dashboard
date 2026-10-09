@@ -92,6 +92,7 @@
   }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .row2 > *, .row3 > *, .panel, .grid-wrap, .chart-wrap { min-width: 0; }
   @media (max-width: 900px) { .row2, .row3 { grid-template-columns: 1fr; } }
   .chart-wrap { position: relative; height: 320px; }
   .chart-wrap.tall { height: 420px; }
@@ -101,9 +102,10 @@
   .tag-orange { background: rgba(255,184,107,0.15); color: var(--warn); border: 1px solid rgba(255,184,107,0.4); }
   .tag-red { background: rgba(255,122,138,0.15); color: var(--danger); border: 1px solid rgba(255,122,138,0.4); }
   .legend-note { font-size: 12px; color: var(--ink-dim); margin: 8px 0; line-height: 1.5; }
-  .grid-wrap { background: transparent; overflow: auto; }
+  .grid-wrap { background: transparent; max-width: 100%; overflow: auto; }
+  .gridjs-container, .gridjs-wrapper { max-width: 100%; min-width: 0; }
   .gridjs-container { color: var(--ink); font-size: 14px; }
-  .gridjs-wrapper, .gridjs-footer, .gridjs-table { border: 0 !important; box-shadow: none !important; background: transparent !important; }
+  .gridjs-wrapper, .gridjs-footer, .gridjs-table, .gridjs-thead, .gridjs-tbody, .gridjs-tr { border: 0 !important; box-shadow: none !important; background: transparent !important; }
   .gridjs-table { table-layout: auto !important; width: 100%; }
   .gridjs-th, .gridjs-td { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; padding: 11px 10px !important; box-shadow: none !important; vertical-align: baseline !important; }
   .gridjs-th { border-bottom: 1px solid var(--ink-dim) !important; }

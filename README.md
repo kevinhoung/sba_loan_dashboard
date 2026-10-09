@@ -2,7 +2,7 @@
 
 A dashboard of SBA 7(a) loans for looking at small-business acquisitions.
 
-It opens on Clark County, Nevada. You can narrow the view by state, then county, then city. An acquisition is a loan the SBA marks as “Change of Ownership,” meaning the money was used to buy an existing business. Restaurants and food service (NAICS 722) and cancelled loans are left out. The figures run from FY2020 through the June 30, 2026 SBA file.
+It opens on the entire United States. You can narrow the view by state, then county, then city. An acquisition is a loan the SBA marks as “Change of Ownership,” meaning the money was used to buy an existing business. Restaurants and food service (NAICS 722) and cancelled loans are left out. The figures run from FY2020 through the June 30, 2026 SBA file.
 
 ## Open it
 
@@ -20,7 +20,7 @@ For the place you pick, the page shows loan counts, approved dollars, and how ma
 
 ## On your computer
 
-Open `index.html` in a browser. Clark County is already saved in that file. Choosing another state reads the files in `data/loans/`, so the folder needs to be served as a website if the browser will not load those files on its own.
+Open `index.html` in a browser. The page loads the state files in `data/loans/`, so the folder needs to be served as a website if the browser will not load those files on its own.
 
 The checks already in the repo run with:
 

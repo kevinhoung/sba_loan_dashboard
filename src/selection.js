@@ -1,10 +1,19 @@
 import { geographyChoices } from './geography.js';
 
 export const DEFAULT_SELECTION = {
-  states: ['NV'],
-  counties: ['CLARK|NV'],
+  states: [],
+  counties: [],
   cities: [],
 };
+
+export function clearSelection() {
+  return { states: [], counties: [], cities: [] };
+}
+
+export function statesToLoad(selection, catalog) {
+  if (selection.states?.length) return [...selection.states];
+  return (catalog || []).map((row) => row.id).filter(Boolean);
+}
 
 function copy(selection) {
   return {
@@ -38,6 +47,7 @@ export function retainSelection(selection, loans) {
 }
 
 export function selectionLabel(selection, choices) {
+  if (!(selection.states || []).length) return 'United States · all states';
   const stateNames = selection.states.map((id) => choices.states.find((state) => state.id === id)?.label || id);
   const countyNames = selection.counties.map((id) => choices.counties.find((county) => county.id === id)?.label || id);
   const cityNames = selection.cities.map((id) => choices.cities.find((city) => city.id === id)?.label || id);

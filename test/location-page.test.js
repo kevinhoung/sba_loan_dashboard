@@ -9,9 +9,14 @@ test('the page wires a cascading state, county, and city picker', () => {
   assert.match(page, /id="citySearch"/);
   assert.match(page, /import \{ geographyChoices \} from '\.\/src\/geography\.js'/);
   assert.match(page, /import \{ unpackStateFile \} from '\.\/src\/loan-pack\.js'/);
-  assert.match(page, /import \{ DEFAULT_SELECTION, retainSelection, selectionLabel, toggleSelection \} from '\.\/src\/selection\.js'/);
+  assert.match(page, /import \{ DEFAULT_SELECTION, clearSelection, retainSelection, selectionLabel, statesToLoad, toggleSelection \} from '\.\/src\/selection\.js'/);
   assert.match(page, /summarize\(loadedLoans, selection\)/);
   assert.match(page, /fetch\(`data\/loans\/\$\{entry\.file\}`\)/);
   assert.match(page, /fetch\('data\/loans\/index\.json'\)/);
-  assert.match(page, /Select at least one state/);
+  assert.match(page, /id="entireUnitedStates"/);
+  assert.match(page, />Entire United States</);
+  assert.match(page, /selection = clearSelection\(\)/);
+  assert.match(page, /statesToLoad\(selection, catalog\)/);
+  assert.match(page, /Pick a county to see cities\./);
+  assert.equal(page.includes('Select at least one state'), false);
 });

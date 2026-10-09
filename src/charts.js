@@ -19,10 +19,12 @@ export function monthTooltipLabel(row, datasetIndex) {
   return ` Acquisitions: ${row.acquisitions}`;
 }
 
-// The chart still shows the twelve industries with the most acquisition loans.
-// Acquisition industries are ordered by charge-off rate, lowest first. Missing rates sort last.
-// Loan count sets the bar length, not the row order.
+// The list still shows the twelve industries with the most acquisition loans.
+// Sort reorders those rows only. The default is charge-off rate, lowest first.
+// Industries with no charge-off rate stay at the bottom when sorting by charge-off.
+// Loan count sets the bar length, not which industries are included.
 export const ACQUISITION_INDUSTRY_ROWS = 12;
+export const DEFAULT_INDUSTRY_SORT = 'chargeoff-asc';
 
 function loanCount(row) {
   const count = Number(row?.n);
@@ -44,30 +46,42 @@ export function chargeOffBucket(rate) {
   return 'bad';
 }
 
-export function rankAcquisitionIndustries(rows, limit = ACQUISITION_INDUSTRY_ROWS) {
+function compareName(a, b) {
+  return industryName(a.code, a.desc).localeCompare(industryName(b.code, b.desc))
+    || String(a.code).localeCompare(String(b.code));
+}
+
+function compareChargeOff(a, b, direction) {
+  const aRate = chargeOffValue(a);
+  const bRate = chargeOffValue(b);
+  if (aRate == null && bRate == null) return compareName(a, b);
+  if (aRate == null) return 1;
+  if (bRate == null) return -1;
+  if (aRate !== bRate) return direction * (aRate - bRate);
+  return compareName(a, b);
+}
+
+function compareAcquisitionIndustries(a, b, sort) {
+  if (sort === 'chargeoff-desc') return compareChargeOff(a, b, -1);
+  if (sort === 'loans-desc') return loanCount(b) - loanCount(a) || compareName(a, b);
+  if (sort === 'loans-asc') return loanCount(a) - loanCount(b) || compareName(a, b);
+  if (sort === 'name-asc') return compareName(a, b);
+  if (sort === 'name-desc') return compareName(b, a);
+  return compareChargeOff(a, b, 1);
+}
+
+export function rankAcquisitionIndustries(rows, limit = ACQUISITION_INDUSTRY_ROWS, sort = DEFAULT_INDUSTRY_SORT) {
   const selected = [...(rows || [])].sort((a, b) => {
     const byCount = loanCount(b) - loanCount(a);
     if (byCount) return byCount;
     return String(a.desc || '').localeCompare(String(b.desc || ''));
   }).slice(0, limit);
 
-  return selected.sort((a, b) => {
-    const aRate = chargeOffValue(a);
-    const bRate = chargeOffValue(b);
-    if (aRate == null && bRate == null) {
-      return industryName(a.code, a.desc).localeCompare(industryName(b.code, b.desc))
-        || String(a.code).localeCompare(String(b.code));
-    }
-    if (aRate == null) return 1;
-    if (bRate == null) return -1;
-    if (aRate !== bRate) return aRate - bRate;
-    return industryName(a.code, a.desc).localeCompare(industryName(b.code, b.desc))
-      || String(a.code).localeCompare(String(b.code));
-  });
+  return selected.sort((a, b) => compareAcquisitionIndustries(a, b, sort));
 }
 
-export function acquisitionIndustryListHtml(rows) {
-  const ranked = rankAcquisitionIndustries(rows);
+export function acquisitionIndustryListHtml(rows, sort = DEFAULT_INDUSTRY_SORT) {
+  const ranked = rankAcquisitionIndustries(rows, ACQUISITION_INDUSTRY_ROWS, sort);
   const max = Math.max(1, ...ranked.map((row) => loanCount(row)));
   return ranked.map((row) => {
     const name = industryName(row.code, row.desc);

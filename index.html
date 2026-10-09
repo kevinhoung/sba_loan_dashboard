@@ -121,6 +121,15 @@
   .industry-pop[hidden] { display: none !important; }
   .industry-pop strong, .industry-pop span { display: block; }
   .industry-pop strong { margin-bottom: 4px; font-size: 12px; font-weight: 600; }
+  .industry-head { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin: 0 0 12px; }
+  .industry-head h2 { margin: 0; }
+  .industry-sort { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; font-size: 13px; color: var(--ink-dim); }
+  .industry-sort select { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; line-height: 1.3; max-width: 100%; cursor: pointer; }
+  .industry-sort select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .industry-legend { margin: 0 0 14px; }
+  .industry-legend-ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: var(--ink); }
+  .industry-legend-ranges .legend-range { display: inline-flex; align-items: center; white-space: nowrap; }
+  .industry-legend .sub { margin: 0; }
   @media (max-width: 700px) {
     .industry-rank-row { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name rate count" "bar bar bar"; row-gap: 6px; }
     .industry-rank-row > .industry-name { grid-area: name; }
@@ -256,8 +265,28 @@
   </div>
 
   <div class="panel">
-    <h2>Acquisition Industries</h2>
-    <p class="sub"><span class="swatch" style="background:var(--bar-good)"></span> Charge-off 5% or less <span class="swatch" style="background:var(--bar-warn)"></span> 5–8% <span class="swatch" style="background:var(--bar-bad)"></span> Above 8%. Bar length is the number of acquisition loans.</p>
+    <div class="industry-head">
+      <h2>Acquisition Industries</h2>
+      <div class="industry-sort">
+        <label for="industrySort">Sort</label>
+        <select id="industrySort">
+          <option value="chargeoff-asc" selected>Charge-off, lowest first</option>
+          <option value="chargeoff-desc">Charge-off, highest first</option>
+          <option value="loans-desc">Loans, most first</option>
+          <option value="loans-asc">Loans, fewest first</option>
+          <option value="name-asc">Industry, A to Z</option>
+          <option value="name-desc">Industry, Z to A</option>
+        </select>
+      </div>
+    </div>
+    <div class="industry-legend">
+      <div class="industry-legend-ranges">
+        <span class="legend-range"><span class="swatch" style="background:var(--bar-good)"></span> Charge-off 5% or less</span>
+        <span class="legend-range"><span class="swatch" style="background:var(--bar-warn)"></span> 5–8%</span>
+        <span class="legend-range"><span class="swatch" style="background:var(--bar-bad)"></span> Above 8%</span>
+      </div>
+      <p class="sub">Bar length is the number of acquisition loans.</p>
+    </div>
     <div id="acqIndustryChart" class="industry-rank"></div>
   </div>
 
@@ -551,6 +580,12 @@ function axis(title, beginAtZero) {
   return scale;
 }
 
+function paintAcquisitionIndustries() {
+  const sort = document.getElementById('industrySort').value;
+  document.getElementById('acqIndustryChart').innerHTML = acquisitionIndustryListHtml(DATA.acq_industries, sort)
+    || '<p class="sub">No acquisition loans in this selection.</p>';
+}
+
 function renderDashboard(nextData) {
   DATA = nextData;
   clearViews();
@@ -622,8 +657,7 @@ new Chart(document.getElementById('sectorResilienceChart'), {
 
 // ========== ACQUISITION INDUSTRY CHART ==========
 // Acquisition industries are ordered by charge-off rate, lowest first. Missing rates sort last.
-document.getElementById('acqIndustryChart').innerHTML = acquisitionIndustryListHtml(DATA.acq_industries)
-  || '<p class="sub">No acquisition loans in this selection.</p>';
+paintAcquisitionIndustries();
 
 // ========== BEST-FIT GRID ==========
 // Composite: industries that show up in BOTH acquisition activity AND have low chgoff
@@ -1017,6 +1051,9 @@ function syncThemeButton() {
   button.setAttribute('aria-label', dark ? 'Switch to light colors' : 'Switch to dark colors');
 }
 syncThemeButton();
+document.getElementById('industrySort').addEventListener('change', () => {
+  if (DATA) paintAcquisitionIndustries();
+});
 document.getElementById('themeToggle').addEventListener('click', () => {
   const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   document.documentElement.dataset.theme = next;

@@ -17,26 +17,26 @@
 <style>
   :root, [data-theme="dark"] {
     color-scheme: dark;
-    --bg: #111113;
-    --panel: #19191c;
-    --panel2: #222226;
-    --ink: #f2f2f0;
-    --ink-dim: #9b9b96;
-    --accent: #3dbe86;
-    --accent2: #7eb6ff;
-    --warn: #e3a008;
-    --danger: #e85d6c;
-    --border: #2e2e33;
-    --chart-grid: #2a2a2e;
-    --bar-good: rgba(61, 190, 134, 0.9);
-    --bar-warn: rgba(227, 160, 8, 0.9);
-    --bar-bad: rgba(232, 93, 108, 0.9);
-    --bar-volume: rgba(126, 182, 255, 0.9);
-    --line-all: #7eb6ff;
-    --line-acq: #3dbe86;
-    --line-all-fill: rgba(126, 182, 255, 0.14);
-    --line-acq-fill: rgba(61, 190, 134, 0.14);
-    --guide: rgba(242, 242, 240, 0.35);
+    --bg: #0b1020;
+    --panel: #121935;
+    --panel2: #1a2348;
+    --ink: #e8ecf7;
+    --ink-dim: #9aa3c0;
+    --accent: #66e3a8;
+    --accent2: #7ac1ff;
+    --warn: #ffb86b;
+    --danger: #ff7a8a;
+    --border: #283260;
+    --chart-grid: #283260;
+    --bar-good: rgba(102, 227, 168, 0.85);
+    --bar-warn: rgba(255, 184, 107, 0.85);
+    --bar-bad: rgba(255, 122, 138, 0.85);
+    --bar-volume: rgba(122, 193, 255, 0.85);
+    --line-all: #7ac1ff;
+    --line-acq: #66e3a8;
+    --line-all-fill: rgba(122, 193, 255, 0.14);
+    --line-acq-fill: rgba(102, 227, 168, 0.14);
+    --guide: rgba(232, 236, 247, 0.35);
   }
   [data-theme="light"] {
     color-scheme: light;
@@ -124,6 +124,8 @@
   .gridjs-tbody .gridjs-tr:last-child .gridjs-td { border-bottom: 0 !important; }
   .gridjs-tbody .gridjs-tr:hover .gridjs-td { background: var(--panel2) !important; }
   .gridjs-th[data-align="end"], .gridjs-td[data-align="end"] { text-align: right !important; }
+  button.gridjs-sort { float: none !important; display: inline-block !important; vertical-align: -4px; margin: 0 0 0 12px !important; }
+  th.gridjs-th-sort .gridjs-th-content { float: none !important; display: inline !important; width: auto !important; }
   .gridjs-sort { opacity: 0.35; }
   .gridjs-th:hover .gridjs-sort, .gridjs-sort-asc, .gridjs-sort-desc { opacity: 1; }
   .gridjs-search { float: none; margin: 2px 0 10px; }

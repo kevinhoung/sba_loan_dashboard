@@ -16,6 +16,9 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.match(page, /<h1>SBA Acquisitions<\/h1>/);
   assert.match(page, /<h2>Acquisition Industries<\/h2>/);
   assert.match(page, /<h2>Monthly Approvals<\/h2>/);
+  assert.match(page, /--bg: #0b1020/);
+  assert.match(page, /\[data-theme="light"\] \{\s*color-scheme: light;\s*--bg: #f6f7f9;/);
+  assert.match(page, /button\.gridjs-sort \{ float: none !important; display: inline-block !important; vertical-align: -4px; margin: 0 0 0 12px !important; \}/);
   assert.match(page, /<button type="button" class="tab active"/);
   assert.match(page, /\.tab:hover \{ background: var\(--panel2\); \}/);
   assert.match(page, /\.kpi \{ padding: 2px 22px;/);

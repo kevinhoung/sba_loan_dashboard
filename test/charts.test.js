@@ -28,4 +28,8 @@ test('the monthly chart uses the shared hover point and both-series tooltip', ()
   assert.match(page, /interaction: indexHover/);
   assert.match(page, /monthTooltipLabel\(mt\[ctx\.dataIndex\], ctx\.datasetIndex\)/);
   assert.match(page, /pointHoverRadius: lineHover\.pointHoverRadius/);
+  assert.match(page, /id="monthlyLegend"/);
+  assert.match(page, /Every eligible SBA 7\(a\) loan approved that month in the place you picked/);
+  assert.match(page, /Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business/);
+  assert.match(page, /plugins: \{\s*legend: \{ display: false \},\s*tooltip: \{\s*mode: indexHover\.mode/);
 });

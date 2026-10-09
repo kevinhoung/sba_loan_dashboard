@@ -145,6 +145,9 @@
   .control select, .control input { background: var(--panel2); color: var(--ink); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 13px; }
   .footnote { color: var(--ink-dim); font-size: 11px; margin-top: 18px; line-height: 1.5; padding: 14px; border-top: 1px solid var(--border); }
   .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 2px 0 10px; font-size: 12px; color: var(--ink); }
+  .chart-legend .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .chart-legend .swatch { width: 18px; height: 3px; margin-right: 0; }
   .pickers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 900px) { .pickers { grid-template-columns: 1fr; } }
   .picker input { width: 100%; }
@@ -216,6 +219,10 @@
   <div class="panel">
     <h2>Monthly Approvals</h2>
     <p class="sub">All loans and change-of-ownership acquisitions.</p>
+    <div class="chart-legend" id="monthlyLegend">
+      <span class="legend-item"><span class="swatch" style="background:var(--line-all)"></span><span class="term" tabindex="0">All loans<span class="term-pop" role="tooltip" hidden><strong>All loans</strong>Every eligible SBA 7(a) loan approved that month in the place you picked. Restaurants (NAICS 722) and cancelled loans are left out. Startups, existing businesses, newer businesses, and acquisitions are all included.</span></span></span>
+      <span class="legend-item"><span class="swatch" style="background:var(--line-acq)"></span><span class="term" tabindex="0">Acquisitions<span class="term-pop" role="tooltip" hidden><strong>Acquisitions</strong>Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business. These loans are already included in All loans. The green line is that subset.</span></span></span>
+    </div>
     <div class="chart-wrap tall"><canvas id="monthlyTrendChart"></canvas></div>
   </div>
 
@@ -357,6 +364,7 @@ import { industryCell, industryName } from './src/naics.js';
 import { DEFAULT_SELECTION, retainSelection, selectionLabel, toggleSelection } from './src/selection.js';
 import { fillMonthGaps, monthlyPayment, summarize } from './src/summarize.js';
 import { bankMark } from './src/bank-logo.js';
+import { formatMoney } from './src/money.js';
 
 let bankLogos = {};
 try {
@@ -380,7 +388,7 @@ function clearViews() {
   });
   VIEW_IDS.forEach(freshContainer);
 }
-const fmt$ = n => '$' + (n >= 1e6 ? (n/1e6).toFixed(2) + 'M' : n >= 1e3 ? (n/1e3).toFixed(0) + 'K' : Number(n).toLocaleString());
+const fmt$ = formatMoney;
 const num = { attributes: { 'data-align': 'end' } };
 const CHARGEOFF_TIP = '<strong>SBA definition</strong>Charged Off (CHGOFF) means the lender wrote off the loan balance as a loss. The SBA charge-off amount is that full balance, both the guaranteed and unguaranteed portions. This column is the share of FY2020–2023 loans with that status.';
 const DISTRESS_TIP = '<strong>How this uses SBA statuses</strong>SBA does not publish a Distress status, and the public file has no delinquency flag. This is the share of those same FY2020–2023 loans that are charged off, still an undisbursed commitment (COMMIT), a legacy closed loan, or have a charge-off amount above $0.';
@@ -679,7 +687,7 @@ new Chart(document.getElementById('monthlyTrendChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: cssVar('--ink') } },
+      legend: { display: false },
       tooltip: {
         mode: indexHover.mode,
         intersect: indexHover.intersect,

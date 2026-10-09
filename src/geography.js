@@ -17,7 +17,7 @@ export const STATE_NAMES = {
 };
 
 export function normalizeText(value) {
-  return String(value ?? '').trim().toUpperCase().replace(/[.]/g, '').replace(/\s+/g, ' ');
+  return String(value ?? '').trim().toUpperCase().replace(/[.,]/g, '').replace(/\s+/g, ' ');
 }
 
 export function normalizeState(value) {
@@ -42,6 +42,14 @@ export function loanCountyKey(loan) {
 
 export function loanCityKey(loan) {
   return cityKey(loan.borrowerCity, loan.projectCounty, loan.projectState);
+}
+
+export function borrowerCityLabel(loan) {
+  const city = titleCase(loan.borrowerCity);
+  const borrowerState = normalizeState(loan.borrowerState);
+  const projectState = normalizeState(loan.projectState);
+  if (borrowerState && projectState && borrowerState !== projectState) return `${city}, ${borrowerState}`;
+  return city;
 }
 
 export function titleCase(value) {

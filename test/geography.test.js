@@ -57,6 +57,14 @@ test('a county outside the selected state does not widen the result', () => {
   assert.equal(selected.length, 0);
 });
 
+test('a trailing comma does not create a second city', () => {
+  const choices = geographyChoices([
+    loan({ borrowerCity: 'Henderson' }),
+    loan({ borrowerCity: 'Henderson,' }),
+  ], { states: ['NV'], counties: ['CLARK|NV'] });
+  assert.deepEqual(choices.cities.map((city) => city.label), ['Henderson']);
+});
+
 test('two states can be selected together', () => {
   const choices = geographyChoices(nevada, { states: ['NV', 'AZ'] });
   assert.deepEqual(choices.counties.map((county) => county.id), ['CLARK|NV', 'MARICOPA|AZ', 'WASHOE|NV']);

@@ -4,8 +4,13 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { median, percent, sizeBucket, summarize } from '../src/summarize.js';
+import { median, monthlyPayment, percent, sizeBucket, summarize } from '../src/summarize.js';
 import { loan } from './helpers.js';
+
+test('a standard loan payment uses the monthly rate and term', () => {
+  const payment = monthlyPayment(350000, 8.6, 120);
+  assert.equal(Math.round(payment), 4358);
+});
 
 test('median and percent use the standard middle value and two decimals', () => {
   assert.equal(median([3, 1, 2]), 2);
@@ -119,6 +124,15 @@ test('selecting two cities counts each matching loan once', () => {
   });
   assert.equal(summary.kpis.total_loans, 2);
   assert.equal(summary.kpis.total_approved_usd, 300000);
+});
+
+test('an out-of-state borrower stays in the project county and is labeled with that state', () => {
+  const summary = summarize([
+    loan({ borrowerCity: 'Orlando', borrowerState: 'FL', businessAge: 'Change of Ownership' }),
+  ], { states: ['NV'], counties: ['CLARK|NV'] });
+  assert.equal(summary.kpis.total_loans, 1);
+  assert.equal(summary.cities[0].city, 'Orlando, FL');
+  assert.equal(summary.acquisitions.by_city['Orlando, FL'], 1);
 });
 
 test('an Orlando borrower is not a Clark County loan when the project is somewhere else', () => {

@@ -1,5 +1,5 @@
 import { businessAgeGroup, eligibleLoans, isChargeOff, isDistressed, isPaidInFull, statusLabel } from './normalize.js';
-import { filterLoans, loanCityKey, titleCase } from './geography.js';
+import { borrowerCityLabel, filterLoans, loanCityKey } from './geography.js';
 
 export const SIZE_BUCKETS = ['<$50K', '$50K-$150K', '$150K-$350K', '$350K-$500K', '$500K-$1M', '$1M-$2M', '$2M+'];
 export const MIN_SEASONED = 8;
@@ -20,6 +20,14 @@ export function average(values, digits = 2) {
   const mean = usable.reduce((sum, value) => sum + value, 0) / usable.length;
   const scale = 10 ** digits;
   return Math.round(mean * scale) / scale;
+}
+
+export function monthlyPayment(principal, annualPercent, months) {
+  if (!principal || !months) return null;
+  const rate = annualPercent / 100 / 12;
+  if (!rate) return principal / months;
+  const factor = (1 + rate) ** months;
+  return principal * rate * factor / (factor - 1);
 }
 
 export function percent(part, whole) {
@@ -266,7 +274,7 @@ export function summarize(loans, selection = {}) {
       avg_term_months: average(acquisitions.map((loan) => loan.termMonths), 0),
       avg_rate: average(acquisitions.map((loan) => loan.interestRate)),
       by_fy: countBy(acquisitions, (loan) => String(loan.approvalFy)),
-      by_city: countBy(acquisitions, (loan) => titleCase(loan.borrowerCity)),
+      by_city: countBy(acquisitions, (loan) => borrowerCityLabel(loan)),
     },
     acq_industries: acqIndustries,
     acq_lenders: [...acqLenderGroups.entries()].map(([bank, group]) => lenderRow(bank, group)).sort((a, b) => b.n - a.n || b.total_dollars - a.total_dollars),
@@ -282,7 +290,7 @@ export function summarize(loans, selection = {}) {
     },
     recent_acq: [...acquisitions].sort((a, b) => b.approvalDate.localeCompare(a.approvalDate) || b.grossApproval - a.grossApproval).slice(0, 50).map((loan) => ({
       date: loan.approvalDate,
-      city: titleCase(loan.borrowerCity),
+      city: borrowerCityLabel(loan),
       naics: loan.naics,
       industry: loan.naicsDescription,
       amount: loan.grossApproval,
@@ -293,7 +301,7 @@ export function summarize(loans, selection = {}) {
       jobs: loan.jobs,
     })),
     cities: [...cityGroups.entries()].map(([, group]) => ({
-      city: titleCase(group[0].borrowerCity),
+      city: borrowerCityLabel(group[0]),
       county: loanCityKey(group[0]),
       n: group.length,
       acquisitions: group.filter((loan) => businessAgeGroup(loan) === 'acquisition').length,

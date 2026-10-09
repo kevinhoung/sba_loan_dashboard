@@ -10,6 +10,8 @@ test('three-digit industries use the official name, not the most common six-digi
   assert.equal(industryName('238', 'Plumbing, Heating, and Air-Conditioning Contractors'), 'Specialty Trade Contractors');
   assert.equal(industryName('621', 'Home Health Care Services'), 'Ambulatory Health Care Services');
   assert.equal(industryName('812', 'Drycleaning and Laundry Services (except Coin-Operated)'), 'Personal and Laundry Services');
+  assert.equal(industryName('442', 'Furniture Stores'), 'Furniture and Home Furnishings Stores');
+  assert.equal(industryName('721', 'Hotels (except Casino Hotels) and Motels'), 'Accommodation');
 });
 
 test('every industry currently on the dashboard has an official three-digit name', () => {

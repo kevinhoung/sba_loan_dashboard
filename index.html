@@ -71,6 +71,9 @@
   .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
   h1, h2 { color: var(--heading); }
   .topbar-title { min-width: 0; max-width: 100%; }
+  @media (min-width: 801px) {
+    .topbar-title { flex: none; white-space: nowrap; }
+  }
   .topbar h1 { display: inline; margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
   #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; min-width: 0; }
   #themeToggle { display: inline-block; vertical-align: middle; margin-left: 12px; white-space: nowrap; background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }

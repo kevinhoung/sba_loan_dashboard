@@ -69,14 +69,17 @@
   .topbar-side { display: flex; align-items: center; gap: 14px; }
   #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; }
   #themeToggle { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  .tabs { display: flex; gap: 4px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
-  .tab { padding: 10px 18px; cursor: pointer; color: var(--ink-dim); font-size: 14px; border-bottom: 2px solid transparent; }
-  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
+  .tab { appearance: none; background: transparent; border: 1px solid transparent; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 18px; font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); cursor: pointer; border-radius: 10px 10px 0 0; }
+  .tab:hover { background: var(--panel2); }
+  .tab.active { border-bottom-color: var(--accent); background: var(--panel); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
   .panel h2 { margin: 0 0 4px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
   .panel .sub { margin: 0 0 14px 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
   .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); }
-  .kpi { padding: 2px 18px 2px 0; border-right: 1px solid var(--border); }
+  .kpi { padding: 2px 22px; border-right: 1px solid var(--border); min-width: 0; }
+  .kpi:first-child { padding-left: 0; }
   .kpi:last-child { border-right: 0; padding-right: 0; }
   .kpi .label { font-size: 13px; color: var(--ink-dim); }
   .kpi .value { font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.03em; }
@@ -90,8 +93,9 @@
   @media (max-width: 800px) {
     .topbar, .topbar-side { align-items: flex-start; flex-direction: column; }
     #whereStatus { text-align: left; }
-    .kpi-strip { grid-template-columns: 1fr 1fr; gap: 14px 0; }
-    .kpi { border-right: 0; padding: 0; }
+    .kpi-strip { grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+    .kpi, .kpi:first-child, .kpi:last-child { border-right: 0; padding: 0; }
+    .tab { font-size: 15px; padding: 10px 12px; }
   }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
@@ -153,7 +157,7 @@
 </head>
 <body>
 <header class="topbar">
-  <h1>SBA acquisitions</h1>
+  <h1>SBA Acquisitions</h1>
   <div class="topbar-side">
     <p id="whereStatus">Loading places…</p>
     <button type="button" id="themeToggle">Light</button>
@@ -182,10 +186,10 @@
   </div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" data-tab="focus">Acquisition Focus</div>
-  <div class="tab" data-tab="explorer">Full Explorer</div>
-  <div class="tab" data-tab="methods">Methodology &amp; Sources</div>
+<div class="tabs" role="tablist">
+  <button type="button" class="tab active" data-tab="focus" role="tab" aria-selected="true">Acquisition Focus</button>
+  <button type="button" class="tab" data-tab="explorer" role="tab" aria-selected="false">Full Explorer</button>
+  <button type="button" class="tab" data-tab="methods" role="tab" aria-selected="false">Methodology &amp; Sources</button>
 </div>
 
 <!-- ================== FOCUS TAB ================== -->
@@ -197,19 +201,19 @@
   </div>
 
   <div class="panel">
-    <h2>Acquisition industries</h2>
+    <h2>Acquisition Industries</h2>
     <p class="sub"><span class="swatch" style="background:var(--bar-good)"></span> Charge-off 5% or less <span class="swatch" style="background:var(--bar-warn)"></span> 5–8% <span class="swatch" style="background:var(--bar-bad)"></span> Above 8%. Bar length is the number of acquisition loans.</p>
     <div class="chart-wrap tall"><canvas id="acqIndustryChart"></canvas></div>
   </div>
 
   <div class="panel">
-    <h2>Monthly approvals</h2>
+    <h2>Monthly Approvals</h2>
     <p class="sub">All loans and change-of-ownership acquisitions.</p>
     <div class="chart-wrap tall"><canvas id="monthlyTrendChart"></canvas></div>
   </div>
 
   <div class="panel">
-    <h2>Lenders to call</h2>
+    <h2>Lenders to Call</h2>
     <p class="sub">Five banks with the most acquisition loans here.</p>
     <div id="topLenders"></div>
   </div>
@@ -219,43 +223,43 @@
 <div class="tab-panel" id="explorer" style="display:none;">
 
   <div class="panel">
-    <h2>Industry resilience</h2>
+    <h2>Industry Resilience</h2>
     <p class="sub">Charge-off rate for loans approved FY2020–2023. Lower means more of those loans were still performing.</p>
     <div class="chart-wrap tall"><canvas id="sectorResilienceChart"></canvas></div>
   </div>
 
   <div class="panel">
-    <h2>Best-fit industries</h2>
+    <h2>Best-Fit Industries</h2>
     <p class="sub">Low charge-off and a real number of acquisition loans. Sorted by that mix.</p>
     <div id="bestFitGrid" class="grid-wrap"></div>
   </div>
 
   <div class="row2">
     <div class="panel">
-      <h2>All acquisition lenders</h2>
+      <h2>All Acquisition Lenders</h2>
       <div id="acqLendersGrid" class="grid-wrap"></div>
     </div>
     <div class="panel">
-      <h2>Acquisition loan size</h2>
+      <h2>Acquisition Loan Size</h2>
       <p class="sub">Up to the $5 million SBA 7(a) maximum.</p>
       <div class="chart-wrap"><canvas id="acqSizeChart"></canvas></div>
     </div>
   </div>
 
   <div class="panel">
-    <h2>Recent acquisition loans</h2>
+    <h2>Recent Acquisition Loans</h2>
     <p class="sub">The latest 50 change-of-ownership loans.</p>
     <div id="recentAcqGrid" class="grid-wrap"></div>
   </div>
 
   <div class="panel">
-    <h2>Sector-level resilience table (NAICS-2)</h2>
+    <h2>Sector-Level Resilience Table (NAICS-2)</h2>
     <p class="sub">All sectors with at least 8 seasoned loans. Sort by any column.</p>
     <div id="sectorGrid" class="grid-wrap"></div>
   </div>
 
   <div class="panel">
-    <h2>Industry detail (NAICS-3) — full explorer</h2>
+    <h2>Industry Detail (NAICS-3) — Full Explorer</h2>
     <p class="sub">Filter, sort, and search across every industry with 8+ seasoned loans.</p>
     <div class="controls">
       <div class="control">
@@ -274,19 +278,19 @@
 
   <div class="row2">
     <div class="panel">
-      <h2>All-loan size distribution</h2>
+      <h2>All-Loan Size Distribution</h2>
       <p class="sub">Loan size buckets for all active 7(a) loans in the places selected above (ex-restaurant).</p>
       <div class="chart-wrap"><canvas id="sizeDistChart"></canvas></div>
     </div>
     <div class="panel">
-      <h2>City breakdown</h2>
+      <h2>City Breakdown</h2>
       <p class="sub">Activity by borrower city.</p>
       <div id="citiesGrid" class="grid-wrap"></div>
     </div>
   </div>
 
   <div class="panel">
-    <h2>All active SBA lenders in this selection</h2>
+    <h2>All Active SBA Lenders in This Selection</h2>
     <p class="sub">Sorted by total deal count since FY2020.</p>
     <div id="allLendersGrid" class="grid-wrap"></div>
   </div>
@@ -296,13 +300,13 @@
 <!-- ================== METHODOLOGY ================== -->
 <div class="tab-panel" id="methods" style="display:none;">
   <div class="panel">
-    <h2>What this dashboard is</h2>
+    <h2>What This Dashboard Is</h2>
     <p class="legend-note">A view of SBA 7(a) loans from FY2020 through June 2026, filtered to the states, counties, and cities you pick. The page opens on Clark County, Nevada. Acquisition figures include every Change of Ownership loan, up to the $5 million program maximum. Restaurants and food service (NAICS 722) and cancelled loans are excluded. A borrower outside the project state is labeled with that state.</p>
 
-    <h2 style="margin-top: 18px;">How "recession resilience" is measured</h2>
+    <h2 style="margin-top: 18px;">How "Recession Resilience" Is Measured</h2>
     <p class="legend-note">For each industry, we look at SBA 7(a) loans approved in FY2020 through FY2023 (loans that have had at least roughly 2 years to season) and compute the share that ended up charged off. Cancelled loans are excluded from the denominator. The FY2020–2023 window includes the COVID-19 shock and the 2022–2024 interest rate spike, so it's a useful real-world stress test for which industries survive turbulence.</p>
 
-    <h2 style="margin-top: 18px;">Caveats &amp; what this doesn't tell you</h2>
+    <h2 style="margin-top: 18px;">Caveats &amp; What This Doesn't Tell You</h2>
     <ul class="legend-note">
       <li>SBA 7(a) loans are a sample of small business activity, not the whole picture. Cash businesses and self-funded deals don't show up.</li>
       <li>"Change of Ownership" is the SBA's tag for acquisition financing, but it doesn't reveal seller-financing structure. You'll need to confirm seller carry directly with brokers and lenders.</li>
@@ -314,7 +318,7 @@
       <li>A lender mark is that bank's site icon when the name matches one institution. Shared names, including Citizens Bank, and lenders without a verified site show initials.</li>
     </ul>
 
-    <h2 style="margin-top: 18px;">Source files</h2>
+    <h2 style="margin-top: 18px;">Source Files</h2>
     <ul class="legend-note">
       <li><strong>FOIA_7a_FY2020_Present_asof_260630.csv</strong> — primary dataset. SBA's FOIA release of every 7(a) loan FY2020 through June 2026. 388,338 rows nationally, 2,964 for Clark County, 2,583 after restaurant exclusion, 2,187 after cancelled loans are removed.</li>
       <li><strong>7a_504_foia_data_dictionary.xlsx</strong> — column definitions.</li>
@@ -322,9 +326,9 @@
       <li>The bkstudy and lender activity files were inspected but their pre-aggregated views overlap with what we computed directly from the FOIA data, so they aren't relied on for the main charts.</li>
     </ul>
 
-    <h2 style="margin-top: 18px;">Suggested next steps</h2>
+    <h2 style="margin-top: 18px;">Suggested Next Steps</h2>
     <ul class="legend-note">
-      <li>Pick 2–3 industries from the "Best-fit" table and search BizBuySell, BizQuest, and LoopNet for live Vegas listings in those NAICS codes.</li>
+      <li>Pick 2–3 industries from the "Best-Fit" table and search BizBuySell, BizQuest, and LoopNet for live Vegas listings in those NAICS codes.</li>
       <li>Email or call 2–3 of the top lenders here to pre-qualify before you make offers. Live Oak, Newtek, Byline, and Readycap are usually responsive to acquisition deals.</li>
       <li>For any specific target, ask the seller for 3 years of tax returns (Schedule C or 1120-S), bank statements, and a current AR aging. The SBA will require these anyway.</li>
       <li>Build a quick DSCR model: NOI ÷ (proposed debt service) should be ≥ 1.25x to clear SBA underwriting.</li>
@@ -376,8 +380,12 @@ const fmtPct = n => (n == null ? '—' : n.toFixed(1) + '%');
 
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(x => {
+      x.classList.remove('active');
+      x.setAttribute('aria-selected', 'false');
+    });
     t.classList.add('active');
+    t.setAttribute('aria-selected', 'true');
     document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
     document.getElementById(t.dataset.tab).style.display = 'block';
     document.querySelectorAll('canvas').forEach(canvas => {

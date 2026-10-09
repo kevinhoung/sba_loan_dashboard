@@ -7,35 +7,89 @@
 <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+<script>
+  (function () {
+    var saved = localStorage.getItem('sba-theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <style>
-  :root {
-    --bg: #0b1020;
-    --panel: #121935;
-    --panel2: #1a2348;
-    --ink: #e8ecf7;
-    --ink-dim: #9aa3c0;
-    --accent: #66e3a8;
-    --accent2: #7ac1ff;
-    --warn: #ffb86b;
-    --danger: #ff7a8a;
-    --border: #283260;
+  :root, [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #111113;
+    --panel: #19191c;
+    --panel2: #222226;
+    --ink: #f2f2f0;
+    --ink-dim: #9b9b96;
+    --accent: #3dbe86;
+    --accent2: #7eb6ff;
+    --warn: #e3a008;
+    --danger: #e85d6c;
+    --border: #2e2e33;
+    --chart-grid: #2a2a2e;
+    --bar-good: rgba(61, 190, 134, 0.9);
+    --bar-warn: rgba(227, 160, 8, 0.9);
+    --bar-bad: rgba(232, 93, 108, 0.9);
+    --bar-volume: rgba(126, 182, 255, 0.9);
+    --line-all: #7eb6ff;
+    --line-acq: #3dbe86;
+    --line-all-fill: rgba(126, 182, 255, 0.14);
+    --line-acq-fill: rgba(61, 190, 134, 0.14);
+    --guide: rgba(242, 242, 240, 0.35);
+  }
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --panel2: #f3f4f6;
+    --ink: #1a1c1f;
+    --ink-dim: #5c6370;
+    --accent: #0f8a5f;
+    --accent2: #1d6fbf;
+    --warn: #b86e00;
+    --danger: #c4364a;
+    --border: #e4e6eb;
+    --chart-grid: #e6e8ee;
+    --bar-good: rgba(15, 138, 95, 0.88);
+    --bar-warn: rgba(184, 110, 0, 0.88);
+    --bar-bad: rgba(196, 54, 74, 0.88);
+    --bar-volume: rgba(29, 111, 191, 0.88);
+    --line-all: #1d6fbf;
+    --line-acq: #0f8a5f;
+    --line-all-fill: rgba(29, 111, 191, 0.12);
+    --line-acq-fill: rgba(15, 138, 95, 0.12);
+    --guide: rgba(26, 28, 31, 0.28);
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
-  body { padding: 24px; max-width: 1400px; margin: 0 auto; }
-  header h1 { margin: 0 0 4px 0; font-size: 26px; letter-spacing: -0.02em; }
-  header p { margin: 0; color: var(--ink-dim); font-size: 14px; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
+  body { padding: 28px 24px 40px; max-width: 1120px; margin: 0 auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .topbar h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  .topbar-side { display: flex; align-items: center; gap: 14px; }
+  #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; }
+  #themeToggle { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
   .tabs { display: flex; gap: 4px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
   .tab { padding: 10px 18px; cursor: pointer; color: var(--ink-dim); font-size: 14px; border-bottom: 2px solid transparent; }
   .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
-  .panel h2 { margin: 0 0 4px 0; font-size: 16px; letter-spacing: -0.01em; }
-  .panel .sub { margin: 0 0 14px 0; font-size: 12px; color: var(--ink-dim); }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-  .kpi { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-  .kpi .label { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-  .kpi .value { font-size: 22px; font-weight: 600; margin-top: 6px; letter-spacing: -0.02em; }
-  .kpi .sub { font-size: 11px; color: var(--ink-dim); margin-top: 4px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .panel h2 { margin: 0 0 4px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .panel .sub { margin: 0 0 14px 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
+  .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .kpi { padding: 2px 18px 2px 0; border-right: 1px solid var(--border); }
+  .kpi:last-child { border-right: 0; padding-right: 0; }
+  .kpi .label { font-size: 13px; color: var(--ink-dim); }
+  .kpi .value { font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.03em; }
+  .deal-note { margin: 16px 0 0; color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
+  .lender-row { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .lender-row:last-child { border-bottom: 0; }
+  .lender-meta { color: var(--ink-dim); white-space: nowrap; }
+  @media (max-width: 800px) {
+    .topbar, .topbar-side { align-items: flex-start; flex-direction: column; }
+    #whereStatus { text-align: left; }
+    .kpi-strip { grid-template-columns: 1fr 1fr; gap: 14px 0; }
+    .kpi { border-right: 0; padding: 0; }
+  }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
   @media (max-width: 900px) { .row2, .row3 { grid-template-columns: 1fr; } }
@@ -47,10 +101,13 @@
   .tag-orange { background: rgba(255,184,107,0.15); color: var(--warn); border: 1px solid rgba(255,184,107,0.4); }
   .tag-red { background: rgba(255,122,138,0.15); color: var(--danger); border: 1px solid rgba(255,122,138,0.4); }
   .legend-note { font-size: 12px; color: var(--ink-dim); margin: 8px 0; line-height: 1.5; }
-  .grid-wrap { background: white; border-radius: 8px; overflow: hidden; }
+  .grid-wrap { background: var(--panel); border-radius: 8px; overflow: auto; }
+  .gridjs-container, .gridjs-wrapper, .gridjs-footer, .gridjs-table, .gridjs-td, .gridjs-th { background: var(--panel) !important; color: var(--ink) !important; border-color: var(--border) !important; }
+  .gridjs-th { background: var(--panel2) !important; }
   .gridjs-wrapper { border-radius: 8px !important; }
-  .gridjs-th { background: #f1f4fb !important; }
-  .insight { background: linear-gradient(135deg, rgba(102,227,168,0.08), rgba(122,193,255,0.08)); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 10px 0; font-size: 13px; line-height: 1.6; }
+  .gridjs-search input, .gridjs-input, .gridjs-footer button { background: var(--panel2) !important; color: var(--ink) !important; border-color: var(--border) !important; }
+  .gridjs-pagination .gridjs-pages button { background: transparent !important; color: var(--ink) !important; }
+  .insight { background: var(--panel2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 10px 0; font-size: 13px; line-height: 1.6; }
   .insight strong { color: var(--accent); }
   .controls { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
   .control { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--ink-dim); }
@@ -61,44 +118,48 @@
   @media (max-width: 900px) { .pickers { grid-template-columns: 1fr; } }
   .picker input { width: 100%; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin: 8px 0; }
-  .chip { background: rgba(102,227,168,0.15); color: var(--accent); border: 1px solid rgba(102,227,168,0.4); border-radius: 999px; padding: 3px 8px; font-size: 12px; cursor: pointer; }
-  .options { max-height: 180px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--panel2); }
+  .active-places { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+  .active-places .chips { min-height: 0; margin: 0; }
+  .chip { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 8px; font-size: 13px; cursor: pointer; }
+  .options { display: none; max-height: 220px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); margin-top: 6px; }
+  .picker.open .options { display: block; }
   .option { padding: 7px 10px; cursor: pointer; font-size: 13px; }
   .option:hover, .option.selected { background: rgba(122,193,255,0.16); }
   .option.selected { color: var(--accent); }
   button.chip, button.option { font: inherit; }
   button.option { display: block; width: 100%; background: transparent; border: 0; text-align: left; color: inherit; }
   .option.hint { cursor: default; color: var(--ink-dim); }
-  #whereStatus { margin-top: 10px; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Small Business Acquisition Dashboard</h1>
-  <p id="pageIntro">SBA 7(a) loans FY2020 through June 2026 for projects in Clark County, Nevada. Restaurants and food service (NAICS 722) excluded. A borrower who lives outside the project state is labeled with that state.</p>
+<header class="topbar">
+  <h1>SBA acquisitions</h1>
+  <div class="topbar-side">
+    <p id="whereStatus">Loading places…</p>
+    <button type="button" id="themeToggle">Light</button>
+  </div>
 </header>
 
 <div class="panel" id="wherePanel">
-  <h2>Where to look</h2>
-  <p class="sub">Pick one or more states, then counties in those states, then cities in those counties. Leave county or city empty to include all of them. The dashboard below is one combined view.</p>
+  <div class="active-places">
+    <div id="stateChips" class="chips"></div>
+    <div id="countyChips" class="chips"></div>
+    <div id="cityChips" class="chips"></div>
+  </div>
   <div class="pickers">
     <div class="picker">
-      <div class="control"><label for="stateSearch">State</label><input id="stateSearch" type="search" placeholder="Search states" /></div>
-      <div id="stateChips" class="chips"></div>
+      <div class="control"><label for="stateSearch">State</label><input id="stateSearch" type="search" placeholder="Add a state" /></div>
       <div id="stateOptions" class="options"></div>
     </div>
     <div class="picker">
-      <div class="control"><label for="countySearch">County</label><input id="countySearch" type="search" placeholder="Search counties" /></div>
-      <div id="countyChips" class="chips"></div>
+      <div class="control"><label for="countySearch">County</label><input id="countySearch" type="search" placeholder="Add a county" /></div>
       <div id="countyOptions" class="options"></div>
     </div>
     <div class="picker">
-      <div class="control"><label for="citySearch">City</label><input id="citySearch" type="search" placeholder="Search cities" /></div>
-      <div id="cityChips" class="chips"></div>
+      <div class="control"><label for="citySearch">City</label><input id="citySearch" type="search" placeholder="Add a city" /></div>
       <div id="cityOptions" class="options"></div>
     </div>
   </div>
-  <p class="sub" id="whereStatus">Loading places…</p>
 </div>
 
 <div class="tabs">
@@ -111,57 +172,26 @@
 <div class="tab-panel" id="focus">
 
   <div class="panel">
-    <h2>The headline numbers</h2>
-    <p class="sub">Active SBA 7(a) loans in the places selected above, since FY2020. Cancelled applications excluded.</p>
-    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="kpi-strip" id="kpiGrid"></div>
+    <p class="deal-note" id="dealNote"></p>
   </div>
 
   <div class="panel">
-    <h2>Your sub-$1M acquisition target zone</h2>
-    <p class="sub">Loans tagged "Change of Ownership" with gross approval below $1M. These are the closest match to what you've described.</p>
-    <div class="kpi-grid" id="sub1mKpis"></div>
-    <div class="insight" id="sub1mInsight"></div>
-  </div>
-
-  <div class="row2">
-    <div class="panel">
-      <h2>Recession-resilient industries (ranked)</h2>
-      <p class="sub">Charge-off rate for loans approved FY2020–2023 that have had time to perform. Lower is more resilient. Cancelled loans excluded.</p>
-      <div class="chart-wrap tall"><canvas id="sectorResilienceChart"></canvas></div>
-    </div>
-    <div class="panel">
-      <h2>Where the acquisition action is</h2>
-      <p class="sub">Industries with the most Change-of-Ownership SBA 7(a) loans in the places selected above, since FY2020.</p>
-      <div class="chart-wrap tall"><canvas id="acqIndustryChart"></canvas></div>
-    </div>
+    <h2>Acquisition industries</h2>
+    <p class="sub"><span class="swatch" style="background:var(--bar-good)"></span> Charge-off 5% or less <span class="swatch" style="background:var(--bar-warn)"></span> 5–8% <span class="swatch" style="background:var(--bar-bad)"></span> Above 8%. Bar length is the number of acquisition loans.</p>
+    <div class="chart-wrap tall"><canvas id="acqIndustryChart"></canvas></div>
   </div>
 
   <div class="panel">
-    <h2>Best-fit industries for your criteria</h2>
-    <p class="sub">Industries that combine low charge-off rates with active acquisition financing in the places selected above. Sorted by a composite score (resilience &times; deal volume). NAICS-3 level.</p>
-    <div id="bestFitGrid" class="grid-wrap"></div>
-    <div class="insight">
-      <strong>How to read this:</strong> "Chg-Off %" is the share of FY2020–2023 loans in that NAICS that ended up charged off through the COVID and rate-hike period. "Acq Count" is how many change-of-ownership loans the SBA has funded in the places selected above since FY2020. A low charge-off rate plus a high acquisition count means an industry that survives shocks AND has a real, working ecosystem of buyers, sellers, and lenders there.
-    </div>
-  </div>
-
-  <div class="row2">
-    <div class="panel">
-      <h2>Top SBA lenders for acquisitions</h2>
-      <p class="sub">Banks that have funded the most Change-of-Ownership 7(a) loans in the places selected above since FY2020. These are the lenders most likely to take your call.</p>
-      <div id="acqLendersGrid" class="grid-wrap"></div>
-    </div>
-    <div class="panel">
-      <h2>Acquisition loan size distribution</h2>
-      <p class="sub">How big are the acquisition loans in this selection? Use this to sanity-check your target range.</p>
-      <div class="chart-wrap"><canvas id="acqSizeChart"></canvas></div>
-    </div>
+    <h2>Monthly approvals</h2>
+    <p class="sub">All loans and change-of-ownership acquisitions.</p>
+    <div class="chart-wrap tall"><canvas id="monthlyTrendChart"></canvas></div>
   </div>
 
   <div class="panel">
-    <h2>Recent SBA acquisition loans</h2>
-    <p class="sub">Most recent 50 funded Change-of-Ownership 7(a) loans. Useful for spotting patterns in what's actually closing.</p>
-    <div id="recentAcqGrid" class="grid-wrap"></div>
+    <h2>Lenders to call</h2>
+    <p class="sub">Five banks with the most acquisition loans here.</p>
+    <div id="topLenders"></div>
   </div>
 </div>
 
@@ -169,9 +199,33 @@
 <div class="tab-panel" id="explorer" style="display:none;">
 
   <div class="panel">
-    <h2>Monthly SBA 7(a) approvals</h2>
-    <p class="sub">All loans (blue) vs Change-of-Ownership acquisitions (green). Excludes restaurants.</p>
-    <div class="chart-wrap tall"><canvas id="monthlyTrendChart"></canvas></div>
+    <h2>Industry resilience</h2>
+    <p class="sub">Charge-off rate for loans approved FY2020–2023. Lower means more of those loans were still performing.</p>
+    <div class="chart-wrap tall"><canvas id="sectorResilienceChart"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <h2>Best-fit industries</h2>
+    <p class="sub">Low charge-off and a real number of acquisition loans. Sorted by that mix.</p>
+    <div id="bestFitGrid" class="grid-wrap"></div>
+  </div>
+
+  <div class="row2">
+    <div class="panel">
+      <h2>All acquisition lenders</h2>
+      <div id="acqLendersGrid" class="grid-wrap"></div>
+    </div>
+    <div class="panel">
+      <h2>Acquisition loan size</h2>
+      <p class="sub">Up to the $5 million SBA 7(a) maximum.</p>
+      <div class="chart-wrap"><canvas id="acqSizeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Recent acquisition loans</h2>
+    <p class="sub">The latest 50 change-of-ownership loans.</p>
+    <div id="recentAcqGrid" class="grid-wrap"></div>
   </div>
 
   <div class="panel">
@@ -223,7 +277,7 @@
 <div class="tab-panel" id="methods" style="display:none;">
   <div class="panel">
     <h2>What this dashboard is</h2>
-    <p class="legend-note">A view of SBA 7(a) loans from FY2020 through June 2026 (the most recent SBA FOIA release), filtered to the states, counties, and cities selected above. The page opens on Clark County, Nevada. Restaurants and food service (NAICS 722) are excluded throughout.</p>
+    <p class="legend-note">A view of SBA 7(a) loans from FY2020 through June 2026, filtered to the states, counties, and cities you pick. The page opens on Clark County, Nevada. Acquisition figures include every Change of Ownership loan, up to the $5 million program maximum. Restaurants and food service (NAICS 722) and cancelled loans are excluded. A borrower outside the project state is labeled with that state.</p>
 
     <h2 style="margin-top: 18px;">How "recession resilience" is measured</h2>
     <p class="legend-note">For each industry, we look at SBA 7(a) loans approved in FY2020 through FY2023 (loans that have had at least roughly 2 years to season) and compute the share that ended up charged off. Cancelled loans are excluded from the denominator. The FY2020–2023 window includes the COVID-19 shock and the 2022–2024 interest rate spike, so it's a useful real-world stress test for which industries survive turbulence.</p>
@@ -302,48 +356,55 @@ document.querySelectorAll('.tab').forEach(t => {
   });
 });
 
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function rateColor(rate) {
+  if (rate == null) return cssVar('--bar-volume');
+  if (rate <= 5) return cssVar('--bar-good');
+  if (rate <= 8) return cssVar('--bar-warn');
+  return cssVar('--bar-bad');
+}
+function axis(title, beginAtZero) {
+  const scale = { ticks: { color: cssVar('--ink') }, grid: { color: cssVar('--chart-grid') } };
+  if (title) scale.title = { display: true, text: title, color: cssVar('--ink-dim') };
+  if (title === 'months') scale.ticks.maxTicksLimit = 16;
+  if (beginAtZero) scale.beginAtZero = true;
+  return scale;
+}
+
 function renderDashboard(nextData) {
   DATA = nextData;
   clearViews();
+  Chart.defaults.font.family = 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+  Chart.defaults.color = cssVar('--ink-dim');
+  Chart.defaults.animation = false;
 
 // ========== KPIS ==========
 const k = DATA.kpis;
+const aq = DATA.acquisitions;
 const kpis = [
-  { label: 'Total SBA 7(a) loans', value: fmtN(k.total_loans), sub: k.fy_range },
-  { label: 'Total approved', value: fmt$(k.total_approved_usd), sub: 'Gross approval, ex-restaurant' },
-  { label: 'Median loan', value: k.median_loan_usd == null ? '—' : fmt$(k.median_loan_usd), sub: 'Across all active loans' },
-  { label: 'Acquisition loans', value: fmtN(k.acquisition_loans), sub: 'Change of ownership' },
-  { label: 'Existing-business loans', value: fmtN(k.existing_business_loans), sub: '2+ year operating history' },
-  { label: 'Avg interest rate', value: k.avg_interest_rate == null ? '—' : k.avg_interest_rate + '%', sub: 'At approval, all loans' },
-  { label: 'Avg term', value: k.avg_term_months == null ? '—' : k.avg_term_months + ' mo', sub: k.avg_term_months == null ? 'No loans in this selection' : 'About ' + Math.round(k.avg_term_months/12) + ' years' },
-  { label: 'Active SBA lenders', value: fmtN(k.unique_lenders), sub: 'In the places selected above' },
+  { label: 'Loans', value: fmtN(k.total_loans) },
+  { label: 'Approved', value: fmt$(k.total_approved_usd) },
+  { label: 'Acquisitions', value: fmtN(k.acquisition_loans) },
+  { label: 'Typical acquisition', value: aq.median_loan == null ? '—' : fmt$(aq.median_loan) },
+  { label: 'Lenders', value: fmtN(k.unique_lenders) },
 ];
 document.getElementById('kpiGrid').innerHTML = kpis.map(x =>
-  `<div class="kpi"><div class="label">${x.label}</div><div class="value">${x.value}</div><div class="sub">${x.sub}</div></div>`
+  `<div class="kpi"><div class="label">${x.label}</div><div class="value">${x.value}</div></div>`
 ).join('');
 
-// Sub-$1M KPIs
-const s = DATA.sub1m_acq;
-const aq = DATA.acquisitions;
-const sub1m = [
-  { label: 'Sub-$1M acquisitions', value: fmtN(s.count), sub: 'In the places selected above' },
-  { label: 'Median loan in this bucket', value: s.median_loan == null ? '—' : fmt$(s.median_loan), sub: 'Typical deal size' },
-  { label: 'Avg term', value: s.avg_term == null ? '—' : s.avg_term + ' mo', sub: s.avg_term == null ? 'No sub-$1M acquisitions' : '~' + Math.round(s.avg_term/12) + ' years' },
-  { label: 'Avg rate', value: s.avg_rate == null ? '—' : s.avg_rate + '%', sub: 'At approval' },
-  { label: 'All acquisitions (any size)', value: fmtN(aq.total), sub: (aq.median_loan == null ? '—' : fmt$(aq.median_loan)) + ' median' },
-];
-document.getElementById('sub1mKpis').innerHTML = sub1m.map(x =>
-  `<div class="kpi"><div class="label">${x.label}</div><div class="value">${x.value}</div><div class="sub">${x.sub}</div></div>`
-).join('');
-
-const payment = monthlyPayment(s.median_loan, s.avg_rate, s.avg_term);
+const payment = monthlyPayment(aq.median_loan, aq.avg_rate, aq.avg_term_months);
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
-const share = aq.total ? Math.round(100 * s.count / aq.total) : 0;
-const paymentText = s.count && payment ? ` That payment is about ${money(payment)}/month, so the business needs roughly ${money(payment * 12 * 1.25)}/year of post-acquisition free cash flow to clear a DSCR of 1.25x.` : '';
-document.getElementById('sub1mInsight').innerHTML =
-  `<strong>Reality check:</strong> Of every Change-of-Ownership SBA loan in this selection, <strong>${share}%</strong> were under $1M. ` +
-  `The typical sub-$1M acquisition loan here is ~${fmt$(s.median_loan || 0)} over ${Math.round((s.avg_term || 0) / 12)} years at roughly ${s.avg_rate || 0}%.` +
-  paymentText;
+const years = aq.avg_term_months ? Math.round(aq.avg_term_months / 12) : 0;
+document.getElementById('dealNote').textContent = aq.total && payment
+  ? `A typical acquisition loan is ${fmt$(aq.median_loan)} over ${years} years at ${aq.avg_rate}%, about ${money(payment)} a month. These loans run up to $5 million.`
+  : 'No acquisition loans in this selection.';
+
+const safeText = value => String(value).replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+document.getElementById('topLenders').innerHTML = DATA.acq_lenders.slice(0, 5).map(row =>
+  `<div class="lender-row"><span>${safeText(row.bank)}</span><span class="lender-meta">${fmtN(row.n)} loans · ${fmt$(row.median_loan)} median</span></div>`
+).join('') || '<p class="sub">No acquisition lenders in this selection.</p>';
 
 // ========== SECTOR RESILIENCE CHART ==========
 const sectors = DATA.sectors;
@@ -355,7 +416,7 @@ new Chart(document.getElementById('sectorResilienceChart'), {
       {
         label: 'Charge-off rate (%)',
         data: sectors.map(s => s.chgoff_rate),
-        backgroundColor: sectors.map(s => s.chgoff_rate <= 5 ? 'rgba(102,227,168,0.85)' : s.chgoff_rate <= 8 ? 'rgba(255,184,107,0.85)' : 'rgba(255,122,138,0.85)'),
+        backgroundColor: sectors.map(s => rateColor(s.chgoff_rate)),
       }
     ]
   },
@@ -365,7 +426,7 @@ new Chart(document.getElementById('sectorResilienceChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#e8ecf7' } },
+      legend: { labels: { color: cssVar('--ink') } },
       tooltip: {
         callbacks: {
           afterLabel: ctx => {
@@ -376,8 +437,8 @@ new Chart(document.getElementById('sectorResilienceChart'), {
       }
     },
     scales: {
-      x: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' }, title: { display: true, text: 'Charge-off rate (%)', color: '#9aa3c0' } },
-      y: { ticks: { color: '#e8ecf7' }, grid: { color: '#283260' } }
+      x: axis('Charge-off rate (%)'),
+      y: axis()
     }
   }
 });
@@ -394,7 +455,7 @@ new Chart(document.getElementById('acqIndustryChart'), {
     datasets: [{
       label: 'Acquisition loans',
       data: acqInd.map(s => s.n),
-      backgroundColor: 'rgba(122,193,255,0.85)',
+      backgroundColor: acqInd.map(row => rateColor(row.chgoff_rate)),
     }]
   },
   options: {
@@ -403,7 +464,7 @@ new Chart(document.getElementById('acqIndustryChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#e8ecf7' } },
+      legend: { display: false },
       tooltip: {
         callbacks: {
           afterLabel: ctx => {
@@ -414,8 +475,8 @@ new Chart(document.getElementById('acqIndustryChart'), {
       }
     },
     scales: {
-      x: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' }, title: { display: true, text: '# Change-of-Ownership loans', color: '#9aa3c0' } },
-      y: { ticks: { color: '#e8ecf7' }, grid: { color: '#283260' } }
+      x: axis('Acquisition loans'),
+      y: axis()
     }
   }
 });
@@ -473,7 +534,7 @@ new Chart(document.getElementById('acqSizeChart'), {
     datasets: [{
       label: '# acquisitions',
       data: acqSizeLabels.map(k => DATA.acq_size_distribution[k]),
-      backgroundColor: acqSizeLabels.map(k => k === '<$50K' || k === '$50K-$150K' || k === '$150K-$350K' || k === '$350K-$500K' || k === '$500K-$1M' ? 'rgba(102,227,168,0.85)' : 'rgba(255,184,107,0.85)'),
+      backgroundColor: cssVar('--bar-volume'),
     }]
   },
   options: {
@@ -482,8 +543,8 @@ new Chart(document.getElementById('acqSizeChart'), {
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' } },
-      y: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' }, beginAtZero: true }
+      x: axis(),
+      y: axis('', true)
     }
   }
 });
@@ -525,7 +586,7 @@ const hoverGuide = {
     ctx.moveTo(x, top);
     ctx.lineTo(x, bottom);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(232,236,247,0.35)';
+    ctx.strokeStyle = cssVar('--guide');
     ctx.stroke();
     ctx.restore();
   }
@@ -536,8 +597,8 @@ new Chart(document.getElementById('monthlyTrendChart'), {
   data: {
     labels: mt.map(m => m.ym),
     datasets: [
-      { label: 'All loans', data: mt.map(m => m.n), borderColor: '#7ac1ff', backgroundColor: 'rgba(122,193,255,0.15)', fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: '#7ac1ff', pointHoverRadius: lineHover.pointHoverRadius },
-      { label: 'Acquisitions', data: mt.map(m => m.acquisitions), borderColor: '#66e3a8', backgroundColor: 'rgba(102,227,168,0.15)', fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: '#66e3a8', pointHoverRadius: lineHover.pointHoverRadius },
+      { label: 'All loans', data: mt.map(m => m.n), borderColor: cssVar('--line-all'), backgroundColor: cssVar('--line-all-fill'), fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: cssVar('--line-all'), pointHoverRadius: lineHover.pointHoverRadius },
+      { label: 'Acquisitions', data: mt.map(m => m.acquisitions), borderColor: cssVar('--line-acq'), backgroundColor: cssVar('--line-acq-fill'), fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: cssVar('--line-acq'), pointHoverRadius: lineHover.pointHoverRadius },
     ]
   },
   options: {
@@ -545,7 +606,7 @@ new Chart(document.getElementById('monthlyTrendChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#e8ecf7' } },
+      legend: { labels: { color: cssVar('--ink') } },
       tooltip: {
         mode: indexHover.mode,
         intersect: indexHover.intersect,
@@ -555,8 +616,8 @@ new Chart(document.getElementById('monthlyTrendChart'), {
       }
     },
     scales: {
-      x: { ticks: { color: '#9aa3c0', maxTicksLimit: 16 }, grid: { color: '#283260' } },
-      y: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' }, beginAtZero: true }
+      x: axis('months'),
+      y: axis('', true)
     }
   }
 });
@@ -591,7 +652,7 @@ new Chart(document.getElementById('sizeDistChart'), {
     datasets: [{
       label: '# loans',
       data: sdLabels.map(k => DATA.size_distribution[k]),
-      backgroundColor: 'rgba(122,193,255,0.85)',
+      backgroundColor: cssVar('--bar-volume'),
     }]
   },
   options: {
@@ -600,8 +661,8 @@ new Chart(document.getElementById('sizeDistChart'), {
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' } },
-      y: { ticks: { color: '#9aa3c0' }, grid: { color: '#283260' }, beginAtZero: true }
+      x: axis(),
+      y: axis('', true)
     }
   }
 });
@@ -754,9 +815,6 @@ function describePlace(summary) {
   document.getElementById('whereStatus').textContent = selection.states.length
     ? `${label} · ${count} loans`
     : 'Select at least one state. An empty state list is not the whole country.';
-  document.getElementById('pageIntro').textContent = selection.states.length
-    ? `${label}. SBA 7(a) loans from FY2020 through June 2026. Restaurants (NAICS 722) and cancelled loans are excluded. City is the borrower's city; a borrower outside the project state is labeled with that state.`
-    : 'Select a state above. Leaving every state unchecked does not show every loan in the country.';
 }
 
 async function ensureStates(states) {
@@ -802,8 +860,35 @@ async function choosePlace(level, id) {
   await applySelection();
 }
 
-['stateSearch', 'countySearch', 'citySearch'].forEach((id) => {
-  document.getElementById(id).addEventListener('input', paintPickers);
+function syncThemeButton() {
+  const dark = document.documentElement.dataset.theme !== 'light';
+  const button = document.getElementById('themeToggle');
+  button.textContent = dark ? 'Light' : 'Dark';
+  button.setAttribute('aria-label', dark ? 'Switch to light colors' : 'Switch to dark colors');
+}
+syncThemeButton();
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('sba-theme', next);
+  syncThemeButton();
+  renderDashboard(DATA);
+});
+
+document.querySelectorAll('.picker input').forEach((input) => {
+  input.addEventListener('focus', () => {
+    document.querySelectorAll('.picker.open').forEach((picker) => picker.classList.remove('open'));
+    input.closest('.picker').classList.add('open');
+  });
+  input.addEventListener('input', () => {
+    input.closest('.picker').classList.add('open');
+    paintPickers();
+  });
+});
+document.addEventListener('mousedown', (event) => {
+  if (!event.target.closest('.picker')) {
+    document.querySelectorAll('.picker.open').forEach((picker) => picker.classList.remove('open'));
+  }
 });
 
 fetch('data/loans/index.json')

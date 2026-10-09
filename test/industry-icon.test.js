@@ -75,6 +75,5 @@ test('industry and sector tables draw the mark beside the name', () => {
   assert.match(page, /formatter: \(cell, row\) => gridjs\.html\(industryMark\(cell, row\.cells\[0\]\.data\)\)/);
   assert.match(page, /formatter: \(cell, row\) => gridjs\.html\(industryMark\(cell, row\.cells\[2\]\.data\)\)/);
   assert.match(page, /\.industry-mark \{/);
-  assert.match(page, /labels: acqInd\.map\(s => \{/);
-  assert.match(page, /const name = industryName\(s\.code, s\.desc\);/);
+  assert.match(page, /acquisitionIndustryListHtml\(DATA\.acq_industries\)/);
 });

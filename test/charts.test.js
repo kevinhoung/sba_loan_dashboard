@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { indexHover, lineHover, monthTooltipLabel } from '../src/charts.js';
+import { acquisitionIndustryListHtml, chargeOffBucket, indexHover, lineHover, monthTooltipLabel, rankAcquisitionIndustries } from '../src/charts.js';
 import { fillMonthGaps } from '../src/summarize.js';
 import { readPublishedPayload } from '../src/published.js';
 
@@ -32,4 +32,68 @@ test('the monthly chart uses the shared hover point and both-series tooltip', ()
   assert.match(page, /Every eligible SBA 7\(a\) loan approved that month in the place you picked/);
   assert.match(page, /Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business/);
   assert.match(page, /plugins: \{\s*legend: \{ display: false \},\s*tooltip: \{\s*mode: indexHover\.mode/);
+});
+
+test('acquisition industries rank by charge-off rate and keep loan-count bars', () => {
+  const rows = [
+    { code: '811', desc: 'General Automotive Repair', n: 100, chgoff_rate: 0 },
+    { code: '238', desc: 'Plumbing, Heating, and Air-Conditioning Contractors', n: 3000, chgoff_rate: 3.37 },
+    { code: '541', desc: 'Offices of Lawyers', n: 200, chgoff_rate: 7.96 },
+    { code: '445', desc: 'Beer, Wine, and Liquor Retailers', n: 400, chgoff_rate: 2.12 },
+    { code: '561', desc: 'Landscaping Services', n: 150, chgoff_rate: 3.83 },
+    { code: '812', desc: 'Drycleaning and Laundry Services (except Coin-Operated)', n: 80, chgoff_rate: 5.06 },
+    { code: '621', desc: 'Home Health Care Services', n: 90, chgoff_rate: 6 },
+    { code: '524', desc: 'Insurance Agencies and Brokerages', n: 70, chgoff_rate: 6.9 },
+    { code: '713', desc: 'Fitness and Recreational Sports Centers', n: 60, chgoff_rate: 2.86 },
+    { code: '624', desc: 'Child Care Services', n: 50, chgoff_rate: 5 },
+    { code: '424', desc: 'General Line Grocery Merchant Wholesalers', n: 40, chgoff_rate: 8.7 },
+    { code: '442', desc: 'Furniture Stores', n: 5000, chgoff_rate: null },
+    { code: '423', desc: 'Other Electronic Parts and Equipment Merchant Wholesalers', n: 30, chgoff_rate: 16.67 },
+    { code: '721', desc: 'Hotels (except Casino Hotels) and Motels', n: 1, chgoff_rate: 0 },
+  ];
+  const ranked = rankAcquisitionIndustries(rows);
+  assert.deepEqual(ranked.map((row) => row.code), [
+    '811', '445', '713', '238', '561', '624', '812', '621', '524', '541', '424', '442',
+  ]);
+  assert.equal(ranked.some((row) => row.code === '721'), false);
+  assert.equal(ranked.at(-1).chgoff_rate, null);
+  assert.equal(chargeOffBucket(5), 'good');
+  assert.equal(chargeOffBucket(5.01), 'warn');
+  assert.equal(chargeOffBucket(8), 'warn');
+  assert.equal(chargeOffBucket(8.01), 'bad');
+  assert.equal(chargeOffBucket(null), 'volume');
+
+  const html = acquisitionIndustryListHtml(rows);
+  assert.match(html, /data-sector="23"/);
+  assert.match(html, /Professional, Scientific, and Technical Services/);
+  assert.match(html, /Amusement, Gambling, and Recreation Industries/);
+  assert.match(html, /Furniture and Home Furnishings Stores/);
+  assert.equal(html.includes('…'), false);
+  assert.equal(html.includes('...'), false);
+  const repair = html.indexOf('Repair and Maintenance');
+  const specialty = html.indexOf('Specialty Trade Contractors');
+  const furniture = html.indexOf('Furniture and Home Furnishings Stores');
+  assert.equal(repair < specialty && specialty < furniture, true);
+  assert.match(html, /bucket-good" style="width:2\.00%"/);
+  assert.match(html, /bucket-warn" style="width:1\.60%"/);
+  assert.match(html, /bucket-bad" style="width:0\.80%"/);
+  assert.match(html, /bucket-volume" style="width:100\.00%"/);
+  assert.match(html, /Charge-off 0%/);
+  assert.match(html, /3,000 loans/);
+  assert.match(html, /5,000 acquisition loans/);
+  assert.match(html, /Charge-off —/);
+  const nasty = acquisitionIndustryListHtml([
+    { code: '999', desc: 'Repair <img alt="x" onerror="alert(1)">', n: 4, chgoff_rate: 1 },
+  ]);
+  assert.equal(nasty.includes('<img'), false);
+  assert.match(nasty, /Repair &lt;img alt=&quot;x&quot; onerror=&quot;alert\(1\)&quot;&gt;/);
+
+  const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="acqIndustryChart" class="industry-rank"/);
+  assert.match(page, /acquisitionIndustryListHtml\(DATA\.acq_industries\)/);
+  assert.match(page, /Acquisition industries are ordered by charge-off rate, lowest first\. Missing rates sort last\./);
+  assert.match(page, /Charge-off 5% or less/);
+  assert.match(page, /Bar length is the number of acquisition loans\./);
+  assert.equal(page.includes('name.slice(0, 40)'), false);
+  assert.equal(page.includes('<canvas id="acqIndustryChart">'), false);
 });

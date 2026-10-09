@@ -52,6 +52,19 @@ export function borrowerCityLabel(loan) {
   return city;
 }
 
+// The loan file has a borrower city and state, and a project county. It does not
+// name the borrower's county. A matching state is the evidence that the city sits
+// with that project. A different state is another town, and a missing city or
+// state is not enough to place it, so those rows stay out of the city table.
+// The loan itself still counts in the county totals.
+export function borrowerCityInCounty(loan) {
+  const city = normalizeText(loan.borrowerCity);
+  const borrowerState = normalizeState(loan.borrowerState);
+  const projectState = normalizeState(loan.projectState);
+  if (!city || !borrowerState || !projectState) return false;
+  return borrowerState === projectState;
+}
+
 export function titleCase(value) {
   return normalizeText(value).toLowerCase().replace(/\b[\w']/g, (letter) => letter.toUpperCase());
 }

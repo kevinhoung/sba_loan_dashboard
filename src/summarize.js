@@ -1,5 +1,5 @@
 import { businessAgeGroup, eligibleLoans, isChargeOff, isDistressed, isPaidInFull, statusLabel } from './normalize.js';
-import { borrowerCityLabel, filterLoans, loanCityKey } from './geography.js';
+import { borrowerCityInCounty, borrowerCityLabel, filterLoans, loanCityKey } from './geography.js';
 
 export const SIZE_BUCKETS = ['<$50K', '$50K-$150K', '$150K-$350K', '$350K-$500K', '$500K-$1M', '$1M-$2M', '$2M+'];
 export const MIN_SEASONED = 8;
@@ -237,6 +237,7 @@ export function summarize(loans, selection = {}) {
 
   const cityGroups = new Map();
   scoped.forEach((loan) => {
+    if (!borrowerCityInCounty(loan)) return;
     const key = loanCityKey(loan);
     if (!cityGroups.has(key)) cityGroups.set(key, []);
     cityGroups.get(key).push(loan);
@@ -288,7 +289,7 @@ export function summarize(loans, selection = {}) {
       avg_term: average(sub1m.map((loan) => loan.termMonths), 0),
       avg_rate: average(sub1m.map((loan) => loan.interestRate)),
     },
-    recent_acq: [...acquisitions].sort((a, b) => b.approvalDate.localeCompare(a.approvalDate) || b.grossApproval - a.grossApproval).slice(0, 50).map((loan) => ({
+    recent_acq: [...acquisitions].sort((a, b) => b.approvalDate.localeCompare(a.approvalDate) || b.grossApproval - a.grossApproval).slice(0, 5).map((loan) => ({
       date: loan.approvalDate,
       city: borrowerCityLabel(loan),
       naics: loan.naics,

@@ -62,6 +62,8 @@ test('the published monthly series includes October 2025 and runs through June 2
   assert.equal(october.acquisitions, 0);
   assert.equal(last.ym, '2026-06');
   assert.equal(payload.cities.some((city) => city.city === 'Orlando'), false);
-  assert.equal(payload.cities.some((city) => city.city === 'Orlando, FL'), true);
+  assert.equal(payload.cities.some((city) => city.city === 'Orlando, FL'), false);
+  assert.equal(payload.cities.some((city) => city.city === 'Las Vegas'), true);
   assert.equal(payload.acquisitions.by_city['Orlando, FL'], 1);
+  assert.equal(payload.recent_acq.length, 5);
 });

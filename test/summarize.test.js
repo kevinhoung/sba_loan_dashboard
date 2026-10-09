@@ -126,13 +126,35 @@ test('selecting two cities counts each matching loan once', () => {
   assert.equal(summary.kpis.total_approved_usd, 300000);
 });
 
-test('an out-of-state borrower stays in the project county and is labeled with that state', () => {
+test('an out-of-state borrower stays in the project county totals and stays out of the city breakdown', () => {
   const summary = summarize([
-    loan({ borrowerCity: 'Orlando', borrowerState: 'FL', businessAge: 'Change of Ownership' }),
+    loan({ borrowerCity: 'Las Vegas', borrowerState: 'NV', grossApproval: 200000 }),
+    loan({ borrowerCity: 'Brentwood', borrowerState: 'CA', grossApproval: 120000 }),
+    loan({ borrowerCity: 'Canyonville', borrowerState: 'OR', grossApproval: 295700 }),
+    loan({ borrowerCity: 'Orlando', borrowerState: 'FL', businessAge: 'Change of Ownership', grossApproval: 2913000 }),
+    loan({ borrowerCity: 'Henderson', borrowerState: '', grossApproval: 50000 }),
   ], { states: ['NV'], counties: ['CLARK|NV'] });
-  assert.equal(summary.kpis.total_loans, 1);
-  assert.equal(summary.cities[0].city, 'Orlando, FL');
+  assert.equal(summary.kpis.total_loans, 5);
+  assert.equal(summary.kpis.total_approved_usd, 200000 + 120000 + 295700 + 2913000 + 50000);
+  assert.equal(summary.kpis.acquisition_loans, 1);
+  assert.deepEqual(summary.cities.map((row) => row.city), ['Las Vegas']);
+  assert.equal(summary.cities[0].n, 1);
+  assert.equal(summary.cities.some((row) => row.city === 'Brentwood, CA'), false);
+  assert.equal(summary.cities.some((row) => row.city === 'Canyonville, OR'), false);
   assert.equal(summary.acquisitions.by_city['Orlando, FL'], 1);
+});
+
+test('recent acquisitions keep only the five latest loans', () => {
+  const loans = Array.from({ length: 8 }, (_, index) => loan({
+    businessAge: 'Change of Ownership',
+    approvalDate: `2024-0${index + 1}-15`,
+    grossApproval: (index + 1) * 1000,
+  }));
+  const summary = summarize(loans);
+  assert.equal(summary.kpis.acquisition_loans, 8);
+  assert.equal(summary.recent_acq.length, 5);
+  assert.equal(summary.recent_acq[0].date, '2024-08-15');
+  assert.equal(summary.recent_acq[4].date, '2024-04-15');
 });
 
 test('an Orlando borrower is not a Clark County loan when the project is somewhere else', () => {

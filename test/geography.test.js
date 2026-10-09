@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { countyOption, filterLoans, geographyChoices } from '../src/geography.js';
+import { borrowerCityInCounty, countyOption, filterLoans, geographyChoices } from '../src/geography.js';
 import { loan } from './helpers.js';
 
 const nevada = [
@@ -63,6 +63,15 @@ test('a trailing comma does not create a second city', () => {
     loan({ borrowerCity: 'Henderson,' }),
   ], { states: ['NV'], counties: ['CLARK|NV'] });
   assert.deepEqual(choices.cities.map((city) => city.label), ['Henderson']);
+});
+
+test('a borrower city counts as inside the county only when the loan file places it in the project state', () => {
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: 'Las Vegas', borrowerState: 'NV' })), true);
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: 'Mesquite', borrowerState: 'nv' })), true);
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: 'Brentwood', borrowerState: 'CA' })), false);
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: 'Canyonville', borrowerState: 'OR' })), false);
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: 'Henderson', borrowerState: '' })), false);
+  assert.equal(borrowerCityInCounty(loan({ borrowerCity: '', borrowerState: 'NV' })), false);
 });
 
 test('an independent city is not labeled as a county, and an out-of-state borrower keeps that state', () => {

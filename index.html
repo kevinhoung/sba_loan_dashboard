@@ -21,6 +21,7 @@
     --panel: #121935;
     --panel2: #1a2348;
     --ink: #e8ecf7;
+    --heading: #e8ecf7;
     --ink-dim: #9aa3c0;
     --accent: #66e3a8;
     --accent2: #7ac1ff;
@@ -44,6 +45,7 @@
     --panel: #ffffff;
     --panel2: #f3f4f6;
     --ink: #1a1c1f;
+    --heading: #1a2744;
     --ink-dim: #5c6370;
     --accent: #0f8a5f;
     --accent2: #1d6fbf;
@@ -65,7 +67,8 @@
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
   body { padding: 28px 24px 40px; max-width: 1120px; margin: 0 auto; }
   .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
-  .topbar h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  h1, h2 { color: var(--heading); }
+  .topbar h1 { margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
   .topbar-side { display: flex; align-items: center; gap: 14px; }
   #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; }
   #themeToggle { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -75,8 +78,8 @@
   .tab.active { border-bottom-color: var(--accent); background: var(--panel); }
   .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
-  .panel h2 { margin: 0 0 4px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
-  .panel .sub { margin: 0 0 14px 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
+  .panel h2 { margin: 0 0 10px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .panel .sub { margin: 0 0 18px 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
   .kpi-strip { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 0.75fr); }
   .kpi { padding: 2px 22px; border-right: 1px solid var(--border); min-width: 0; }
   .kpi:first-child { padding-left: 0; }

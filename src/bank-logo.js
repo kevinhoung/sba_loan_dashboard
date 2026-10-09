@@ -103,6 +103,8 @@ export function bankInitials(name) {
   const singles = words.filter((word) => word.length === 1);
   if (singles.length >= 2) return singles.slice(0, 2).join('');
   const significant = words.filter((word) => !['OF', 'AND', 'THE', 'FOR'].includes(word));
+  const first = significant[0] || '';
+  if (first.length >= 2 && first.length <= 3) return first;
   const pick = (significant.length ? significant : words).slice(0, 2);
   return pick.map((word) => word[0]).join('') || '?';
 }

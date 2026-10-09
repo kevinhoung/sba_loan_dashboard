@@ -77,6 +77,8 @@ test('a lender mark escapes the name and uses initials when no logo is verified'
   assert.equal(plain.includes('<Bank>'), false);
   assert.equal(bankInitials('Bank of America, National Association'), 'BA');
   assert.equal(bankInitials('U.S. Bank, National Association'), 'US');
+  assert.equal(bankInitials('CDC Small Business Finance Corp.'), 'CDC');
+  assert.equal(bankInitials('TD Bank, National Association'), 'TD');
 });
 
 test('the page draws a logo beside lender names', () => {

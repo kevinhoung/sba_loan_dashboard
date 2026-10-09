@@ -81,9 +81,12 @@
   .kpi .label { font-size: 13px; color: var(--ink-dim); }
   .kpi .value { font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.03em; }
   .deal-note { margin: 16px 0 0; color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
-  .lender-row { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .lender-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .lender-row:last-child { border-bottom: 0; }
   .lender-meta { color: var(--ink-dim); white-space: nowrap; }
+  .bank-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+  .bank-mark { width: 22px; height: 22px; border-radius: 6px; background: #fff; object-fit: contain; flex: none; padding: 2px; box-sizing: border-box; }
+  .bank-initials { display: inline-flex; align-items: center; justify-content: center; background: var(--panel2); color: var(--ink-dim); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; padding: 0; line-height: 1; }
   @media (max-width: 800px) {
     .topbar, .topbar-side { align-items: flex-start; flex-direction: column; }
     #whereStatus { text-align: left; }
@@ -308,6 +311,7 @@
       <li>The data only goes back to FY2020, so we don't have a 2008-style recession in this dataset. COVID and the rate spike are our best stress tests.</li>
       <li>County is the project county. City is the borrower's city, so a Clark County project can show a borrower in another state. That loan is still a Clark County project.</li>
       <li>The place picker loads one file per selected state from data/loans/. Counties are listed only for the states you picked, and cities only for the counties you picked. One loan that matches more than one selected place is counted once. Leaving state empty does not mean the whole country.</li>
+      <li>A lender mark is that bank's site icon when the name matches one institution. Shared names, including Citizens Bank, and lenders without a verified site show initials.</li>
     </ul>
 
     <h2 style="margin-top: 18px;">Source files</h2>
@@ -341,6 +345,15 @@ import { unpackStateFile } from './src/loan-pack.js';
 import { industryCell, industryName } from './src/naics.js';
 import { DEFAULT_SELECTION, retainSelection, selectionLabel, toggleSelection } from './src/selection.js';
 import { fillMonthGaps, monthlyPayment, summarize } from './src/summarize.js';
+import { bankMark } from './src/bank-logo.js';
+
+let bankLogos = {};
+try {
+  const response = await fetch('data/bank-logos.json');
+  if (response.ok) bankLogos = await response.json();
+} catch {
+  bankLogos = {};
+}
 let DATA = JSON.parse(document.getElementById('payload').textContent);
 const VIEW_IDS = ['bestFitGrid', 'acqLendersGrid', 'recentAcqGrid', 'sectorGrid', 'naics3Grid', 'citiesGrid', 'allLendersGrid'];
 function freshContainer(id) {
@@ -419,9 +432,8 @@ document.getElementById('dealNote').textContent = aq.total && payment
   ? `A typical acquisition loan is ${fmt$(aq.median_loan)} over ${years} years at ${aq.avg_rate}%, about ${money(payment)} a month. These loans run up to $5 million.`
   : 'No acquisition loans in this selection.';
 
-const safeText = value => String(value).replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
 document.getElementById('topLenders').innerHTML = DATA.acq_lenders.slice(0, 5).map(row =>
-  `<div class="lender-row"><span>${safeText(row.bank)}</span><span class="lender-meta">${fmtN(row.n)} loans · ${fmt$(row.median_loan)} median</span></div>`
+  `<div class="lender-row">${bankMark(row.bank, bankLogos)}<span class="lender-meta">${fmtN(row.n)} loans · ${fmt$(row.median_loan)} median</span></div>`
 ).join('') || '<p class="sub">No acquisition lenders in this selection.</p>';
 
 // ========== SECTOR RESILIENCE CHART ==========
@@ -526,7 +538,7 @@ new gridjs.Grid({
 // ========== ACQ LENDERS GRID ==========
 new gridjs.Grid({
   columns: [
-    { name: 'Lender' },
+    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
     { name: 'Loans', ...num },
     { name: 'Total', ...num, formatter: c => '$' + (c/1e6).toFixed(2) + 'M' },
     { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
@@ -573,7 +585,7 @@ new gridjs.Grid({
     { name: 'Loan', ...num, formatter: c => '$' + Number(c).toLocaleString() },
     { name: 'Term', ...num },
     { name: 'Rate', ...num },
-    { name: 'Lender' },
+    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
     { name: 'Status' },
     { name: 'Jobs', ...num },
   ],
@@ -693,7 +705,7 @@ new gridjs.Grid({
 // ========== ALL LENDERS ==========
 new gridjs.Grid({
   columns: [
-    { name: 'Lender' },
+    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
     { name: 'Loans', ...num },
     { name: 'Total', ...num, formatter: c => '$' + (c/1e6).toFixed(2) + 'M' },
     { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },

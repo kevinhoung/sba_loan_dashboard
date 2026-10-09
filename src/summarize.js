@@ -49,6 +49,9 @@ export function sectorName(naics) {
   const digits = String(naics ?? '');
   const two = digits.slice(0, 2);
   const names = {
+    11: 'Agriculture, Forestry, Fishing',
+    21: 'Mining and Oil & Gas',
+    22: 'Utilities',
     23: 'Construction',
     31: 'Manufacturing (Food/Textile)',
     32: 'Manufacturing (Wood/Chem/Plastic)',
@@ -62,11 +65,14 @@ export function sectorName(naics) {
     52: 'Finance & Insurance',
     53: 'Real Estate & Rental',
     54: 'Professional/Scientific/Technical',
+    55: 'Management of Companies',
     56: 'Admin/Support/Waste',
     61: 'Educational Services',
     62: 'Health Care & Social Assistance',
     71: 'Arts, Entertainment, Recreation',
+    72: 'Accommodation and Food Services',
     81: 'Other Services (Repair/Personal)',
+    92: 'Public Administration',
   };
   return names[two] || (two ? `NAICS ${two}` : 'Unknown');
 }

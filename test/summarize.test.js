@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { median, monthlyPayment, percent, sizeBucket, summarize } from '../src/summarize.js';
+import { median, monthlyPayment, percent, sectorName, sizeBucket, summarize } from '../src/summarize.js';
 import { loan } from './helpers.js';
 
 test('a standard loan payment uses the monthly rate and term', () => {
@@ -18,6 +18,45 @@ test('median and percent use the standard middle value and two decimals', () => 
   assert.equal(percent(4, 121), 3.31);
   assert.equal(percent(2, 43), 4.65);
   assert.equal(percent(0, 0), null);
+});
+
+test('missing NAICS sectors use short official names', () => {
+  const official = {
+    11: 'Agriculture, Forestry, Fishing',
+    21: 'Mining and Oil & Gas',
+    22: 'Utilities',
+    55: 'Management of Companies',
+    72: 'Accommodation and Food Services',
+    92: 'Public Administration',
+  };
+  for (const [code, name] of Object.entries(official)) {
+    assert.equal(sectorName(code), name);
+    assert.equal(sectorName(`${code}110`), name);
+    assert.equal(/^NAICS \d+/.test(name), false, name);
+    assert.equal(sectorName(code).includes(`NAICS ${code}`), false);
+  }
+  assert.equal(sectorName('31'), 'Manufacturing (Food/Textile)');
+  assert.equal(sectorName('32'), 'Manufacturing (Wood/Chem/Plastic)');
+  assert.equal(sectorName('44'), 'Retail (Auto/Furn/Home)');
+  assert.equal(sectorName('45'), 'Retail (General/Misc)');
+});
+
+test('every two-digit code in the loan files has a sector name', () => {
+  const codes = new Set();
+  const directory = new URL('../data/loans/', import.meta.url);
+  for (const file of readdirSync(directory)) {
+    if (!file.endsWith('.json') || file === 'index.json') continue;
+    const packed = JSON.parse(readFileSync(new URL(file, directory), 'utf8'));
+    for (const row of packed.loans || []) {
+      const digits = String(row[8] ?? '').replace(/\D/g, '');
+      if (digits.length >= 2) codes.add(digits.slice(0, 2));
+    }
+  }
+  for (const code of ['11', '21', '22', '55', '72', '92']) assert.equal(codes.has(code), true, code);
+  for (const code of codes) {
+    const name = sectorName(`${code}0000`);
+    assert.equal(/^NAICS \d+/.test(name), false, `${code} -> ${name}`);
+  }
 });
 
 test('loan size buckets treat the labeled edge as the start of the next bucket', () => {

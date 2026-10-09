@@ -38,8 +38,8 @@ export const SECTOR_ICONS = {
 const FALLBACK_ICON = svg('<rect x="5" y="5" width="14" height="14" rx="4"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>');
 
 const SECTOR_NAMES = {
-  11: ['Agriculture', 'Agriculture, Forestry, Fishing and Hunting'],
-  21: ['Mining', 'Mining, Quarrying, and Oil and Gas Extraction'],
+  11: ['Agriculture', 'Agriculture, Forestry, Fishing', 'Agriculture, Forestry, Fishing and Hunting'],
+  21: ['Mining', 'Mining and Oil & Gas', 'Mining, Quarrying, and Oil and Gas Extraction'],
   22: ['Utilities'],
   23: ['Construction'],
   31: ['Manufacturing (Food/Textile)'],

@@ -26,7 +26,7 @@ test('each known sector has a distinct icon and an unknown sector uses the neutr
 });
 
 test('a sector is chosen from the NAICS code or the dashboard sector name', () => {
-  for (const code of ['23', '31', '32', '33', '42', '44', '45', '48', '49', '51', '52', '53', '54', '56', '61', '62', '71', '81']) {
+  for (const code of ['11', '21', '22', '23', '31', '32', '33', '42', '44', '45', '48', '49', '51', '52', '53', '54', '55', '56', '61', '62', '71', '72', '81', '92']) {
     assert.equal(sectorCode(sectorName(`${code}0000`)), code, sectorName(code));
     assert.notEqual(graphic(industryMark('A', code)), graphic(industryMark('A', code === '23' ? '62' : '23')));
   }

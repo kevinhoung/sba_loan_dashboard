@@ -41,13 +41,15 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.match(page, /Charged Off \(CHGOFF\) means the lender wrote off the loan balance as a loss/);
   assert.match(page, /SBA does not publish a Distress status/);
   assert.match(page, /<script defer src="\/_vercel\/insights\/script\.js"><\/script>/);
-  assert.equal(page.split("termHeader('Charge-off'").length - 1, 3);
-  assert.equal(page.split("termHeader('Distress'").length - 1, 2);
+  assert.equal(page.split("rateColumn('Charge-off'").length - 1, 3);
+  assert.equal(page.split("rateColumn('Distress'").length - 1, 2);
   assert.match(page, /The latest 5 change-of-ownership loans/);
   assert.equal(page.includes('The latest 50'), false);
   assert.match(page, /Borrower cities inside the selected county/);
   assert.match(page, /import \{ formatRate, sizeChartLabel \} from '\.\/src\/format\.js'/);
-  assert.equal(page.split('pagination: { limit: PAGE_ROWS }').length - 1, 7);
+  assert.equal(page.split('pageSize: PAGE_ROWS').length - 1, 7);
+  assert.equal(page.includes('gridjs/dist/gridjs.umd.js'), false);
+  assert.equal(page.includes('An error happened while fetching the data'), false);
   assert.equal(page.includes('All Acquisition Lenders</h2>\n    <div id="acqLendersGrid"'), true);
   assert.equal(/<div class="row2">[\s\S]{0,400}All Acquisition Lenders/.test(page), false);
 });

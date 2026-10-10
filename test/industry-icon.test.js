@@ -70,10 +70,10 @@ test('a name interpolated into the mark is escaped', () => {
 test('industry and sector tables draw the mark beside the name', () => {
   const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(page, /import \{ industryHtml, industryMark \} from '\.\/src\/industry-icon\.js'/);
-  assert.match(page, /gridjs\.html\(industryHtml\(industryCell\(/);
-  assert.match(page, /formatter: \(cell\) => gridjs\.html\(industryMark\(cell\)\)/);
-  assert.match(page, /formatter: \(cell, row\) => gridjs\.html\(industryMark\(cell, row\.cells\[0\]\.data\)\)/);
-  assert.match(page, /formatter: \(cell, row\) => gridjs\.html\(industryMark\(cell, row\.cells\[2\]\.data\)\)/);
+  assert.match(page, /html: \(_, row\) => industryHtml\(industryCell\(row\[0\], row\[1\]\), row\[0\]\)/);
+  assert.match(page, /html: \(value\) => industryMark\(value\)/);
+  assert.match(page, /html: \(value, row\) => industryMark\(value, row\[0\]\)/);
+  assert.match(page, /html: \(value, row\) => industryMark\(value, row\[2\]\)/);
   assert.match(page, /\.industry-mark \{/);
   assert.match(page, /acquisitionIndustryListHtml\(DATA\.acq_industries, industrySort\)/);
 });

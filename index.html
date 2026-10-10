@@ -6,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="favicon.png" type="image/png" sizes="32x32" />
-<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
 <script>
   (function () {
     var saved = localStorage.getItem('sba-theme');
@@ -171,6 +169,7 @@
   .gridjs-table { table-layout: auto !important; width: 100%; }
   .gridjs-th, .gridjs-td { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; padding: 11px 10px !important; box-shadow: none !important; vertical-align: baseline !important; }
   .gridjs-th { border-bottom: 1px solid var(--ink-dim) !important; }
+  th.gridjs-th-sort { cursor: pointer; }
   .gridjs-th, .gridjs-th-content { color: var(--ink-dim) !important; font-size: 12px !important; font-weight: 500 !important; letter-spacing: 0; white-space: nowrap !important; overflow: visible !important; text-overflow: unset !important; line-height: 1.3; }
   [data-theme="light"] .gridjs-th, [data-theme="light"] .gridjs-th-content { color: var(--heading) !important; }
   .gridjs-td { font-size: 14px !important; font-variant-numeric: tabular-nums; }
@@ -180,18 +179,25 @@
   .gridjs-tbody .gridjs-tr:hover .gridjs-td { background: var(--panel2) !important; }
   .gridjs-th[data-align="end"], .gridjs-td[data-align="end"] { text-align: right !important; width: 1%; white-space: nowrap !important; }
   button.gridjs-sort { float: none !important; display: inline-block !important; vertical-align: -4px; margin: 0 0 0 12px !important; }
+  button.gridjs-sort { appearance: none; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; line-height: 0; }
+  button.gridjs-sort .arrow-up, button.gridjs-sort .arrow-down { fill: currentColor; opacity: 0.45; }
+  button.gridjs-sort[aria-sort="ascending"] .arrow-up, button.gridjs-sort[aria-sort="descending"] .arrow-down { opacity: 1; }
   th.gridjs-th-sort .gridjs-th-content { float: none !important; display: inline !important; width: auto !important; }
   .term { cursor: help; border-bottom: 1px dotted var(--ink-dim); }
   .term-pop { position: fixed; z-index: 50; width: 280px; padding: 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18); font-size: 13px; font-weight: 400; line-height: 1.45; letter-spacing: 0; text-align: left; white-space: normal; }
   .term-pop[hidden] { display: none !important; }
   .term-pop strong { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; }
   .gridjs-sort { opacity: 0.35; }
-  .gridjs-th:hover .gridjs-sort, .gridjs-sort-asc, .gridjs-sort-desc { opacity: 1; }
+  .gridjs-th:hover .gridjs-sort, .gridjs-sort-asc, .gridjs-sort-desc, .gridjs-sort[aria-sort="ascending"], .gridjs-sort[aria-sort="descending"] { opacity: 1; }
   .gridjs-search { float: none; margin: 2px 0 10px; }
   .gridjs-search input, .gridjs-input { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; border-radius: 0 !important; box-shadow: none !important; width: 220px; max-width: 100%; padding: 6px 0 !important; font-size: 13px !important; }
   .gridjs-footer { color: var(--ink-dim) !important; padding: 8px 0 0 !important; box-shadow: none !important; border: 0 !important; }
-  .gridjs-pagination, .gridjs-pagination .gridjs-pages { display: flex; align-items: center; gap: 2px; }
-  .gridjs-pagination button, .gridjs-pages button { background: transparent !important; border: 0 !important; color: var(--ink-dim) !important; box-shadow: none !important; min-width: 28px; padding: 4px 6px !important; }
+  .gridjs-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+  .gridjs-pagination .gridjs-pages { display: flex; align-items: center; gap: 2px; }
+  .gridjs-summary { font-size: 13px; }
+  .gridjs-message { text-align: center; color: var(--ink-dim); }
+  .gridjs-pagination button, .gridjs-pages button { background: transparent !important; border: 0 !important; color: var(--ink-dim) !important; box-shadow: none !important; min-width: 28px; padding: 4px 6px !important; cursor: pointer; }
+  .gridjs-pagination button:disabled { opacity: 0.35; cursor: default; }
   .gridjs-currentPage { color: var(--ink) !important; font-weight: 600; }
   .insight { background: var(--panel2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 10px 0; font-size: 13px; line-height: 1.6; }
   .insight strong { color: var(--accent); }
@@ -441,6 +447,7 @@ import { DEFAULT_SELECTION, clearSelection, retainSelection, selectionLabel, sta
 import { fillMonthGaps, monthlyPayment, summarize } from './src/summarize.js';
 import { bankMark } from './src/bank-logo.js';
 import { formatMoney } from './src/money.js';
+import { renderDataTable } from './src/table.js';
 
 let bankLogos = {};
 try {
@@ -465,11 +472,23 @@ function clearViews() {
   VIEW_IDS.forEach(freshContainer);
 }
 const fmt$ = formatMoney;
-const num = { attributes: { 'data-align': 'end' } };
+function dollars(value) {
+  if (value == null || value === '') return '—';
+  return '$' + Number(value).toLocaleString();
+}
+function millions(digits) {
+  return (value) => value == null || value === '' ? '—' : '$' + (Number(value) / 1e6).toFixed(digits) + 'M';
+}
+function withUnit(suffix) {
+  return (value) => value == null || value === '' ? '—' : value + suffix;
+}
+function rateColumn(label, tip) {
+  return { name: label, headerHtml: tip ? termHeader(label, tip) : undefined, align: 'end', numeric: true, format: formatRate };
+}
 const CHARGEOFF_TIP = '<strong>SBA definition</strong>Charged Off (CHGOFF) means the lender wrote off the loan balance as a loss. The SBA charge-off amount is that full balance, both the guaranteed and unguaranteed portions. This column is the share of FY2020–2023 loans with that status.';
 const DISTRESS_TIP = '<strong>How this uses SBA statuses</strong>SBA does not publish a Distress status, and the public file has no delinquency flag. This is the share of those same FY2020–2023 loans that are charged off, still an undisbursed commitment (COMMIT), a legacy closed loan, or have a charge-off amount above $0.';
 function termHeader(label, tip) {
-  return gridjs.html('<span class="term" tabindex="0">' + label + '<span class="term-pop" role="tooltip" hidden>' + tip + '</span></span>');
+  return '<span class="term" tabindex="0">' + label + '<span class="term-pop" role="tooltip" hidden>' + tip + '</span></span>';
 }
 document.addEventListener('mouseover', (event) => {
   const term = event.target.closest?.('.term');
@@ -546,7 +565,6 @@ document.addEventListener('focusout', (event) => {
 });
 const fmtN = n => Number(n).toLocaleString();
 const PAGE_ROWS = 10;
-const rateCol = { ...num, formatter: (cell) => formatRate(cell) };
 
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
@@ -680,37 +698,34 @@ const bestFit = DATA.acq_industries
   .sort((a,b) => b.score - a.score)
   .slice(0, 12);
 
-new gridjs.Grid({
+renderDataTable(document.getElementById('bestFitGrid'), {
+  pageSize: PAGE_ROWS,
   columns: [
-    { name: 'Industry', formatter: (_, r) => gridjs.html(industryHtml(industryCell(r.cells[0].data, r.cells[1].data), r.cells[0].data)) },
-    { name: 'NAICS', hidden: true },
-    { name: 'Acquisitions', ...num },
-    { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-    { name: 'Term', ...num, formatter: c => c + ' mo' },
-    { name: 'Rate', ...num, formatter: c => c + '%' },
-    { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...rateCol },
-    { name: 'Sector' },
+    { name: 'Industry', index: 1, html: (_, row) => industryHtml(industryCell(row[0], row[1]), row[0]), sort: (_, row) => industryName(row[0], row[1]), search: (_, row) => industryName(row[0], row[1]) },
+    { name: 'Acquisitions', index: 2, align: 'end', numeric: true },
+    { name: 'Median', index: 3, align: 'end', numeric: true, format: dollars },
+    { name: 'Term', index: 4, align: 'end', numeric: true, format: withUnit(' mo') },
+    { name: 'Rate', index: 5, align: 'end', numeric: true, format: withUnit('%') },
+    { ...rateColumn('Charge-off', CHARGEOFF_TIP), index: 6 },
+    { name: 'Sector', index: 7 },
   ],
-  data: bestFit.map(x => [x.code, x.desc, x.n, x.median_loan, x.avg_term, x.avg_rate, x.chgoff_rate, x.sector]),
-  sort: true,
-  pagination: { limit: PAGE_ROWS },
-}).render(document.getElementById('bestFitGrid'));
+  rows: bestFit.map(x => [x.code, x.desc, x.n, x.median_loan, x.avg_term, x.avg_rate, x.chgoff_rate, x.sector]),
+});
 
 // ========== ACQ LENDERS GRID ==========
-new gridjs.Grid({
-  columns: [
-    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
-    { name: 'Loans', ...num },
-    { name: 'Total', ...num, formatter: c => '$' + (c/1e6).toFixed(2) + 'M' },
-    { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-    { name: 'Rate', ...num, formatter: c => c + '%' },
-    { name: 'Term', ...num, formatter: c => c + ' mo' },
-  ],
-  data: DATA.acq_lenders.map(x => [x.bank, x.n, x.total_dollars, x.median_loan, x.avg_rate, x.avg_term]),
-  sort: true,
+renderDataTable(document.getElementById('acqLendersGrid'), {
   search: true,
-  pagination: { limit: PAGE_ROWS },
-}).render(document.getElementById('acqLendersGrid'));
+  pageSize: PAGE_ROWS,
+  columns: [
+    { name: 'Lender', index: 0, html: (value) => bankMark(value, bankLogos) },
+    { name: 'Loans', index: 1, align: 'end', numeric: true },
+    { name: 'Total', index: 2, align: 'end', numeric: true, format: millions(2) },
+    { name: 'Median', index: 3, align: 'end', numeric: true, format: dollars },
+    { name: 'Rate', index: 4, align: 'end', numeric: true, format: withUnit('%') },
+    { name: 'Term', index: 5, align: 'end', numeric: true, format: withUnit(' mo') },
+  ],
+  rows: DATA.acq_lenders.map(x => [x.bank, x.n, x.total_dollars, x.median_loan, x.avg_rate, x.avg_term]),
+});
 
 // ========== ACQ SIZE CHART ==========
 const acqSizeLabels = Object.keys(DATA.acq_size_distribution);
@@ -741,24 +756,23 @@ new Chart(document.getElementById('acqSizeChart'), {
 });
 
 // ========== RECENT ACQUISITIONS GRID ==========
-new gridjs.Grid({
-  columns: [
-    { name: 'Date' },
-    { name: 'City' },
-    { name: 'NAICS' },
-    { name: 'Industry', formatter: (cell, row) => gridjs.html(industryMark(cell, row.cells[2].data)) },
-    { name: 'Loan', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-    { name: 'Term', ...num },
-    { name: 'Rate', ...num },
-    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
-    { name: 'Status' },
-    { name: 'Jobs', ...num },
-  ],
-  data: DATA.recent_acq.slice(0, 5).map(x => [x.date, x.city, x.naics, x.industry, x.amount, x.term, x.rate, x.bank, x.status, x.jobs]),
-  sort: true,
+renderDataTable(document.getElementById('recentAcqGrid'), {
   search: true,
-  pagination: { limit: PAGE_ROWS },
-}).render(document.getElementById('recentAcqGrid'));
+  pageSize: PAGE_ROWS,
+  columns: [
+    { name: 'Date', index: 0 },
+    { name: 'City', index: 1 },
+    { name: 'NAICS', index: 2 },
+    { name: 'Industry', index: 3, html: (value, row) => industryMark(value, row[2]), sort: (value) => value },
+    { name: 'Loan', index: 4, align: 'end', numeric: true, format: dollars },
+    { name: 'Term', index: 5, align: 'end', numeric: true },
+    { name: 'Rate', index: 6, align: 'end', numeric: true },
+    { name: 'Lender', index: 7, html: (value) => bankMark(value, bankLogos) },
+    { name: 'Status', index: 8 },
+    { name: 'Jobs', index: 9, align: 'end', numeric: true },
+  ],
+  rows: DATA.recent_acq.slice(0, 5).map(x => [x.date, x.city, x.naics, x.industry, x.amount, x.term, x.rate, x.bank, x.status, x.jobs]),
+});
 
 // ========== EXPLORER: MONTHLY TREND ==========
 const mt = fillMonthGaps(DATA.monthly_trend);
@@ -812,20 +826,19 @@ new Chart(document.getElementById('monthlyTrendChart'), {
 });
 
 // ========== SECTOR GRID ==========
-new gridjs.Grid({
+renderDataTable(document.getElementById('sectorGrid'), {
+  pageSize: PAGE_ROWS,
   columns: [
-    { name: 'Sector', formatter: (cell) => gridjs.html(industryMark(cell)) },
-    { name: 'Loans', ...num },
-    { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...rateCol },
-    { id: 'distress', name: termHeader('Distress', DISTRESS_TIP), ...rateCol },
-    { name: 'Paid in full', ...rateCol },
-    { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-    { name: 'Term', ...num },
+    { name: 'Sector', index: 0, html: (value) => industryMark(value) },
+    { name: 'Loans', index: 1, align: 'end', numeric: true },
+    { ...rateColumn('Charge-off', CHARGEOFF_TIP), index: 2 },
+    { ...rateColumn('Distress', DISTRESS_TIP), index: 3 },
+    { ...rateColumn('Paid in full'), index: 4 },
+    { name: 'Median', index: 5, align: 'end', numeric: true, format: dollars },
+    { name: 'Term', index: 6, align: 'end', numeric: true },
   ],
-  data: DATA.sectors.map(x => [x.sector, x.n, x.chgoff_rate, x.distress_rate, x.pif_rate, x.median_loan, x.avg_term]),
-  sort: true,
-  pagination: { limit: PAGE_ROWS },
-}).render(document.getElementById('sectorGrid'));
+  rows: DATA.sectors.map(x => [x.sector, x.n, x.chgoff_rate, x.distress_rate, x.pif_rate, x.median_loan, x.avg_term]),
+});
 
 // ========== NAICS-3 GRID WITH FILTERS ==========
 renderNaics3();
@@ -866,34 +879,32 @@ if (!selection.counties.length) {
   note.textContent = 'Pick a county to see cities.';
   cityBox.appendChild(note);
 } else {
-  new gridjs.Grid({
+  renderDataTable(cityBox, {
+    pageSize: PAGE_ROWS,
     columns: [
-      { name: 'City' },
-      { name: 'Loans', ...num },
-      { name: 'Acquisitions', ...num },
-      { name: 'Total', ...num, formatter: c => '$' + (c/1e6).toFixed(1) + 'M' },
-      { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
+      { name: 'City', index: 0 },
+      { name: 'Loans', index: 1, align: 'end', numeric: true },
+      { name: 'Acquisitions', index: 2, align: 'end', numeric: true },
+      { name: 'Total', index: 3, align: 'end', numeric: true, format: millions(1) },
+      { name: 'Median', index: 4, align: 'end', numeric: true, format: dollars },
     ],
-    data: DATA.cities.map(x => [x.city, x.n, x.acquisitions, x.total_dollars, x.median_loan]),
-    sort: true,
-    pagination: { limit: PAGE_ROWS },
-  }).render(cityBox);
+    rows: DATA.cities.map(x => [x.city, x.n, x.acquisitions, x.total_dollars, x.median_loan]),
+  });
 }
 
 // ========== ALL LENDERS ==========
-new gridjs.Grid({
-  columns: [
-    { name: 'Lender', formatter: (cell) => gridjs.html(bankMark(cell, bankLogos)) },
-    { name: 'Loans', ...num },
-    { name: 'Total', ...num, formatter: c => '$' + (c/1e6).toFixed(2) + 'M' },
-    { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-    { name: 'Rate', ...num },
-  ],
-  data: DATA.all_lenders.map(x => [x.bank, x.n, x.total_dollars, x.median_loan, x.avg_rate]),
-  sort: true,
+renderDataTable(document.getElementById('allLendersGrid'), {
   search: true,
-  pagination: { limit: PAGE_ROWS },
-}).render(document.getElementById('allLendersGrid'));
+  pageSize: PAGE_ROWS,
+  columns: [
+    { name: 'Lender', index: 0, html: (value) => bankMark(value, bankLogos) },
+    { name: 'Loans', index: 1, align: 'end', numeric: true },
+    { name: 'Total', index: 2, align: 'end', numeric: true, format: millions(2) },
+    { name: 'Median', index: 3, align: 'end', numeric: true, format: dollars },
+    { name: 'Rate', index: 4, align: 'end', numeric: true },
+  ],
+  rows: DATA.all_lenders.map(x => [x.bank, x.n, x.total_dollars, x.median_loan, x.avg_rate]),
+});
 
 
 }
@@ -906,23 +917,22 @@ function renderNaics3() {
   document.getElementById('minNFilterVal').textContent = minN;
   const filtered = (DATA.naics3 || []).filter(x => x.chgoff_rate <= maxChg && x.n >= minN);
   const wrap = freshContainer('naics3Grid');
-  new gridjs.Grid({
-    columns: [
-      { name: 'NAICS' },
-      { name: 'Industry', formatter: (cell, row) => gridjs.html(industryMark(cell, row.cells[0].data)) },
-      { name: 'Sector' },
-      { name: 'Loans', ...num },
-      { id: 'chgoff', name: termHeader('Charge-off', CHARGEOFF_TIP), ...rateCol },
-      { id: 'distress', name: termHeader('Distress', DISTRESS_TIP), ...rateCol },
-      { name: 'Paid in full', ...rateCol },
-      { name: 'Median', ...num, formatter: c => '$' + Number(c).toLocaleString() },
-      { name: 'Term', ...num },
-    ],
-    data: filtered.map(x => [x.code, industryName(x.code, x.desc), x.sector, x.n, x.chgoff_rate, x.distress_rate, x.pif_rate, x.median_loan, x.avg_term]),
-    sort: true,
+  renderDataTable(wrap, {
     search: true,
-    pagination: { limit: PAGE_ROWS },
-  }).render(wrap);
+    pageSize: PAGE_ROWS,
+    columns: [
+      { name: 'NAICS', index: 0 },
+      { name: 'Industry', index: 1, html: (value, row) => industryMark(value, row[0]) },
+      { name: 'Sector', index: 2 },
+      { name: 'Loans', index: 3, align: 'end', numeric: true },
+      { ...rateColumn('Charge-off', CHARGEOFF_TIP), index: 4 },
+      { ...rateColumn('Distress', DISTRESS_TIP), index: 5 },
+      { ...rateColumn('Paid in full'), index: 6 },
+      { name: 'Median', index: 7, align: 'end', numeric: true, format: dollars },
+      { name: 'Term', index: 8, align: 'end', numeric: true },
+    ],
+    rows: filtered.map(x => [x.code, industryName(x.code, x.desc), x.sector, x.n, x.chgoff_rate, x.distress_rate, x.pif_rate, x.median_loan, x.avg_term]),
+  });
 }
 
 document.getElementById('chgoffFilter').addEventListener('input', renderNaics3);

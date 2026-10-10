@@ -43,7 +43,7 @@ test('the industry cell is HTML-safe and keeps the code beside the name', () => 
 test('the best-fit table renders that cell as HTML instead of plain text', () => {
   const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(page, /import \{ industryCell, industryName \} from '\.\/src\/naics\.js'/);
-  assert.match(page, /gridjs\.html\(industryHtml\(industryCell\(/);
+  assert.match(page, /html: \(_, row\) => industryHtml\(industryCell\(row\[0\], row\[1\]\), row\[0\]\)/);
   assert.match(page, /industryName\(x\.code, x\.desc\)/);
   const charts = readFileSync(new URL('../src/charts.js', import.meta.url), 'utf8');
   assert.match(charts, /industryName\(row\.code, row\.desc\)/);

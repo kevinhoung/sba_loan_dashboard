@@ -84,7 +84,7 @@ test('a lender mark escapes the name and uses initials when no logo is verified'
 test('the page draws a logo beside lender names', () => {
   const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(page, /bankMark\(row\.bank, bankLogos\)/);
-  assert.equal(page.split('gridjs.html(bankMark(cell, bankLogos))').length - 1, 3);
+  assert.equal(page.split('html: (value) => bankMark(value, bankLogos)').length - 1, 3);
   assert.match(page, /\.bank-mark \{/);
   assert.match(page, /data\/bank-logos\.json/);
 });

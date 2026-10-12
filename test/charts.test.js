@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { acquisitionIndustryListHtml, chargeOffBucket, indexHover, lineHover, monthTitle, monthTooltipLabel, rankAcquisitionIndustries, yearTick } from '../src/charts.js';
+import { acquisitionIndustryListHtml, categoryChartHeight, chargeOffBucket, indexHover, lineHover, monthTitle, monthTooltipLabel, rankAcquisitionIndustries, yearTick } from '../src/charts.js';
 import { fillMonthGaps } from '../src/summarize.js';
 import { readPublishedPayload } from '../src/published.js';
 
@@ -44,6 +44,33 @@ test('the monthly chart uses the shared hover point and both-series tooltip', ()
   assert.match(page, /x: yearAxis\(\)/);
   assert.match(page, /scale\.grid\.drawOnChartArea = false/);
   assert.match(page, /All loans use the left scale\. Acquisitions use the right scale\./);
+});
+
+test('category charts keep a row tall enough for every label', () => {
+  assert.equal(categoryChartHeight(0), 420);
+  assert.equal(categoryChartHeight(3), 420);
+  assert.equal(categoryChartHeight(24), 24 * 32 + 72);
+  assert.equal(categoryChartHeight(7, 52, 420), 7 * 52 + 72);
+  assert.equal(categoryChartHeight('nope', 32, 360), 360);
+});
+
+test('industry resilience shows every sector name and loan size is horizontal', () => {
+  const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(page, /class="chart-wrap sectors"><canvas id="sectorResilienceChart">/);
+  assert.match(page, /labels: sectors\.map\(s => s\.sector\)/);
+  assert.match(page, /data: sectors\.map\(s => s\.n\)/);
+  assert.match(page, /resilienceCanvas\.parentElement\.style\.height = categoryChartHeight\(sectors\.length\) \+ 'px'/);
+  assert.match(page, /sectorAxis\.ticks\.autoSkip = false/);
+  assert.match(page, /y: sectorAxis/);
+  assert.equal(page.includes('sectors.filter'), false);
+
+  assert.match(page, /class="chart-wrap sizes"><canvas id="sizeChart">/);
+  assert.match(page, /labels: sizeLabels\.map\(sizeChartLabel\)/);
+  assert.match(page, /label: 'All loans'/);
+  assert.match(page, /label: 'Acquisitions'/);
+  assert.match(page, /sizeCanvas\.parentElement\.style\.height = categoryChartHeight\(sizeLabels\.length, 52, 420\) \+ 'px'/);
+  assert.match(page, /sizeCategoryAxis\.ticks\.autoSkip = false/);
+  assert.match(page, /indexAxis: 'y',\s*interaction: barHover,\s*responsive: true,\s*maintainAspectRatio: false,\s*plugins: \{ legend: \{ display: false \} \},\s*scales: \{\s*x: axis\('Loans', true\),\s*y: sizeCategoryAxis/);
 });
 
 test('acquisition industries rank by charge-off rate and keep loan-count bars', () => {

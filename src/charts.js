@@ -13,6 +13,14 @@ export const lineHover = {
 export const indexHover = { mode: 'index', intersect: false };
 export const barHover = { mode: 'nearest', intersect: false };
 
+// A short category chart skips ticks that do not fit. With an even count the
+// last bar is one of the skipped ticks, so its name never draws. One row per
+// bar, plus room for the count axis, keeps every label on the canvas.
+export function categoryChartHeight(count, perRow = 32, floor = 420) {
+  const rows = Math.max(0, Number(count) || 0);
+  return Math.max(floor, rows * perRow + 72);
+}
+
 export function monthTooltipLabel(row, datasetIndex) {
   if (!row) return '';
   if (datasetIndex === 0) return ` All loans: ${row.n}`;

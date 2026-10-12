@@ -54,7 +54,10 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.equal(/<div class="row2">[\s\S]{0,400}All Acquisition Lenders/.test(page), false);
   assert.equal(page.includes('id="acqSizeChart"'), false);
   assert.equal(page.includes('id="sizeDistChart"'), false);
-  assert.match(page, /id="sizeChart"/);
+  assert.match(page, /class="chart-wrap sectors"><canvas id="sectorResilienceChart">/);
+  assert.match(page, /sectorAxis\.ticks\.autoSkip = false/);
+  assert.match(page, /class="chart-wrap sizes"><canvas id="sizeChart">/);
+  assert.match(page, /indexAxis: 'y',\s*interaction: barHover,\s*responsive: true,\s*maintainAspectRatio: false,\s*plugins: \{ legend: \{ display: false \} \},\s*scales: \{\s*x: axis\('Loans', true\),\s*y: sizeCategoryAxis/);
   assert.match(page, /data: sectors\.map\(s => s\.n\)/);
   assert.equal(page.split("format: counts").length - 1, 2);
   assert.equal(page.split('formatChargeOff').length - 1, 5);

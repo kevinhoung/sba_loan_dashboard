@@ -101,8 +101,11 @@
   .industry-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
   .industry-mark { width: 18px; height: 18px; flex: none; color: var(--ink-dim); display: inline-flex; }
   .industry-mark svg { width: 18px; height: 18px; display: block; }
-  .industry-rank { display: flex; flex-direction: column; }
-  .industry-rank-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(7.5rem, max-content) minmax(110px, 32%) auto; align-items: center; column-gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--border); border-radius: 8px; }
+  .industry-rank { display: grid; grid-template-columns: minmax(0, 1fr) 6.25ch minmax(110px, 32%) max-content; column-gap: 12px; align-items: center; font-size: 13px; }
+  .industry-rank-head,
+  #acqIndustryChart,
+  .industry-rank-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; column-gap: inherit; align-items: center; font-size: 1rem; min-width: 0; }
+  .industry-rank-row { padding: 9px 4px; border-bottom: 1px solid var(--border); border-radius: 8px; }
   .industry-rank-row:last-child { border-bottom: 0; }
   .industry-rank-row:hover, .industry-rank-row:focus-visible { background: var(--panel2); }
   .industry-rank-row .industry-name { align-items: flex-start; min-width: 0; }
@@ -110,7 +113,8 @@
   .industry-rank-row .industry-mark { margin-top: 1px; }
   .industry-rank-rate, .industry-rank-count { font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
   .industry-rank-rate { display: block; width: 100%; text-align: right; }
-  .industry-rank-count { color: var(--ink-dim); }
+  .industry-rank-count { display: block; width: 100%; color: var(--ink-dim); text-align: right; }
+  .industry-rank-row > .industry-pop { grid-column: 1; grid-row: 1; }
   .industry-rank-track { height: 10px; border-radius: 5px; background: var(--border); }
   .industry-rank-bar { display: block; height: 10px; border-radius: 5px; min-width: 2px; }
   .industry-rank-bar.bucket-good { background: var(--bar-good); }
@@ -121,9 +125,12 @@
   .industry-pop[hidden] { display: none !important; }
   .industry-pop strong, .industry-pop span { display: block; }
   .industry-pop strong { margin-bottom: 4px; font-size: 12px; font-weight: 600; }
-  .industry-rank-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(7.5rem, max-content) minmax(110px, 32%) auto; align-items: center; column-gap: 12px; padding: 0 4px 8px; margin-bottom: 2px; border-bottom: 1px solid var(--ink-dim); }
+  .industry-rank-head { padding: 0 4px 8px; margin-bottom: 2px; border-bottom: 1px solid var(--ink-dim); }
   .industry-col { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12px; font-weight: 500; color: var(--ink-dim); cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; white-space: nowrap; }
   .industry-col-end { justify-content: flex-end; }
+  .industry-col[data-sort-key="loans"] { width: 100%; }
+  .industry-col[data-sort-key="chargeoff"] { justify-self: end; width: max-content; min-width: 0; }
+  .industry-col[data-sort-key="chargeoff"] .col-arrows { order: -1; }
   .industry-col:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .col-arrows { display: inline-flex; opacity: 0.35; }
   .industry-col:hover .col-arrows, .industry-col.is-sorted .col-arrows { opacity: 1; }
@@ -135,13 +142,13 @@
   .industry-legend-ranges .legend-range { display: inline-flex; align-items: center; white-space: nowrap; }
   .industry-legend .sub { margin: 0; }
   @media (max-width: 700px) {
-    .industry-rank-head { grid-template-columns: minmax(0, 1fr) auto auto; }
+    .industry-rank { grid-template-columns: minmax(0, 1fr) 6.25ch max-content; }
     .industry-rank-head-gap { display: none; }
-    .industry-rank-row { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name rate count" "bar bar bar"; row-gap: 6px; }
-    .industry-rank-row > .industry-name { grid-area: name; }
-    .industry-rank-rate { grid-area: rate; }
-    .industry-rank-count { grid-area: count; }
-    .industry-rank-track { grid-area: bar; }
+    .industry-rank-row { grid-template-rows: auto auto; row-gap: 6px; }
+    .industry-rank-row > .industry-name { grid-column: 1; grid-row: 1; }
+    .industry-rank-rate { grid-column: 2; grid-row: 1; }
+    .industry-rank-count { grid-column: 3; grid-row: 1; }
+    .industry-rank-track { grid-column: 1 / -1; grid-row: 2; }
   }
   @media (max-width: 800px) {
     .topbar { align-items: stretch; flex-direction: column; }

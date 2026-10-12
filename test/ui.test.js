@@ -18,6 +18,11 @@ test('the opening view leads with acquisition totals up to $5 million', () => {
   assert.match(page, /class="industry-col" data-sort-key="name"/);
   assert.match(page, /class="industry-col industry-col-end" data-sort-key="chargeoff"/);
   assert.match(page, /class="industry-col industry-col-end" data-sort-key="loans"/);
+  assert.equal(page.includes('minmax(7.5rem, max-content)'), false);
+  assert.match(page, /\.industry-rank \{ display: grid; grid-template-columns: minmax\(0, 1fr\) 6\.25ch minmax\(110px, 32%\) max-content;/);
+  assert.match(page, /grid-template-columns: subgrid/);
+  assert.match(page, /\.industry-col\[data-sort-key="chargeoff"\] \.col-arrows \{ order: -1; \}/);
+  assert.match(page, /\.industry-rank-count \{ display: block; width: 100%; color: var\(--ink-dim\); text-align: right; \}/);
   assert.equal(page.includes('id="industrySort"'), false);
   assert.match(page, /class="industry-legend-ranges"/);
   assert.match(page, /style="background:var\(--bar-good\)"/);

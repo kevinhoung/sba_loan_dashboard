@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { formatRate, sizeChartLabel } from '../src/format.js';
+import { formatChargeOff, formatRate, sizeChartLabel } from '../src/format.js';
 import { SIZE_BUCKETS } from '../src/summarize.js';
 
 test('charge-off, distress, and paid-in-full rates keep their decimals and gain a percent sign', () => {
@@ -12,6 +12,16 @@ test('charge-off, distress, and paid-in-full rates keep their decimals and gain 
   assert.equal(formatRate(null), '—');
   assert.equal(formatRate(undefined), '—');
   assert.equal(formatRate(''), '—');
+});
+
+test('charge-off columns use two decimals so the points line up', () => {
+  assert.equal(formatChargeOff(0), '0.00%');
+  assert.equal(formatChargeOff(3.5), '3.50%');
+  assert.equal(formatChargeOff(3.84), '3.84%');
+  assert.equal(formatChargeOff(0.21), '0.21%');
+  assert.equal(formatChargeOff(12.5), '12.50%');
+  assert.equal(formatChargeOff(null), '—');
+  assert.equal(formatChargeOff(''), '—');
 });
 
 test('acquisition size buckets use short horizontal labels without changing the bucket', () => {

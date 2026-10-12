@@ -2,6 +2,7 @@ import { businessAgeGroup, eligibleLoans, isChargeOff, isDistressed, isPaidInFul
 import { borrowerCityInCounty, borrowerCityLabel, filterLoans, loanCityKey } from './geography.js';
 
 export const SIZE_BUCKETS = ['<$50K', '$50K-$150K', '$150K-$350K', '$350K-$500K', '$500K-$1M', '$1M-$2M', '$2M+'];
+export const RECENT_ACQ_LIMIT = 50;
 export const MIN_SEASONED = 8;
 const SEASONED_START = 2020;
 const SEASONED_END = 2023;
@@ -295,7 +296,7 @@ export function summarize(loans, selection = {}) {
       avg_term: average(sub1m.map((loan) => loan.termMonths), 0),
       avg_rate: average(sub1m.map((loan) => loan.interestRate)),
     },
-    recent_acq: [...acquisitions].sort((a, b) => b.approvalDate.localeCompare(a.approvalDate) || b.grossApproval - a.grossApproval).slice(0, 5).map((loan) => ({
+    recent_acq: [...acquisitions].sort((a, b) => b.approvalDate.localeCompare(a.approvalDate) || b.grossApproval - a.grossApproval).slice(0, RECENT_ACQ_LIMIT).map((loan) => ({
       date: loan.approvalDate,
       city: borrowerCityLabel(loan),
       naics: loan.naics,

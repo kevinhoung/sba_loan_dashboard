@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { acquisitionIndustryListHtml, chargeOffBucket, indexHover, lineHover, monthTooltipLabel, rankAcquisitionIndustries } from '../src/charts.js';
+import { acquisitionIndustryListHtml, chargeOffBucket, indexHover, lineHover, monthTitle, monthTooltipLabel, rankAcquisitionIndustries, yearTick } from '../src/charts.js';
 import { fillMonthGaps } from '../src/summarize.js';
 import { readPublishedPayload } from '../src/published.js';
 
@@ -13,6 +13,13 @@ test('a month tooltip lists both series at the same point', () => {
   assert.equal(indexHover.intersect, false);
   assert.equal(lineHover.pointRadius, 0);
   assert.equal(lineHover.pointHoverRadius, 6);
+  assert.equal(monthTitle('2019-10'), 'Oct 2019');
+  assert.equal(monthTitle('2026-06'), 'Jun 2026');
+  const labels = ['2019-10', '2019-11', '2019-12', '2020-01', '2020-02'];
+  assert.equal(yearTick(labels[0], 0, labels), '2019');
+  assert.equal(yearTick(labels[1], 1, labels), '');
+  assert.equal(yearTick(labels[3], 3, labels), '2020');
+  assert.equal(yearTick(labels[4], 4, labels), '');
 });
 
 test('the published October gap is filled before the chart draws it', () => {
@@ -32,6 +39,11 @@ test('the monthly chart uses the shared hover point and both-series tooltip', ()
   assert.match(page, /Every eligible SBA 7\(a\) loan approved that month in the place you picked/);
   assert.match(page, /Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business/);
   assert.match(page, /plugins: \{\s*legend: \{ display: false \},\s*tooltip: \{\s*mode: indexHover\.mode/);
+  assert.match(page, /title: items => monthTitle\(mt\[items\[0\]\.dataIndex\]\.ym\)/);
+  assert.match(page, /yAxisID: 'yAcq'/);
+  assert.match(page, /x: yearAxis\(\)/);
+  assert.match(page, /scale\.grid\.drawOnChartArea = false/);
+  assert.match(page, /All loans use the left scale\. Acquisitions use the right scale\./);
 });
 
 test('acquisition industries rank by charge-off rate and keep loan-count bars', () => {
@@ -78,7 +90,7 @@ test('acquisition industries rank by charge-off rate and keep loan-count bars', 
   assert.match(html, /bucket-warn" style="width:1\.60%"/);
   assert.match(html, /bucket-bad" style="width:0\.80%"/);
   assert.match(html, /bucket-volume" style="width:100\.00%"/);
-  assert.match(html, /Charge-off 0%/);
+  assert.match(html, /Charge-off 0\.00%/);
   assert.match(html, /3,000 loans/);
   assert.match(html, /5,000 acquisition loans/);
   assert.match(html, /Charge-off —/);

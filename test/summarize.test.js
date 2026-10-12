@@ -183,7 +183,7 @@ test('an out-of-state borrower stays in the project county totals and stays out 
   assert.equal(summary.acquisitions.by_city['Orlando, FL'], 1);
 });
 
-test('recent acquisitions keep only the five latest loans', () => {
+test('recent acquisitions keep the fifty latest loans', () => {
   const loans = Array.from({ length: 8 }, (_, index) => loan({
     businessAge: 'Change of Ownership',
     approvalDate: `2024-0${index + 1}-15`,
@@ -191,9 +191,20 @@ test('recent acquisitions keep only the five latest loans', () => {
   }));
   const summary = summarize(loans);
   assert.equal(summary.kpis.acquisition_loans, 8);
-  assert.equal(summary.recent_acq.length, 5);
+  assert.equal(summary.recent_acq.length, 8);
   assert.equal(summary.recent_acq[0].date, '2024-08-15');
-  assert.equal(summary.recent_acq[4].date, '2024-04-15');
+  assert.equal(summary.recent_acq[7].date, '2024-01-15');
+
+  const many = Array.from({ length: 60 }, (_, index) => loan({
+    businessAge: 'Change of Ownership',
+    approvalDate: new Date(Date.UTC(2020, 0, 1 + index)).toISOString().slice(0, 10),
+    grossApproval: index + 1,
+  }));
+  const capped = summarize(many);
+  assert.equal(capped.kpis.acquisition_loans, 60);
+  assert.equal(capped.recent_acq.length, 50);
+  assert.equal(capped.recent_acq[0].date, '2020-02-29');
+  assert.equal(capped.recent_acq[49].date, '2020-01-11');
 });
 
 test('an Orlando borrower is not a Clark County loan when the project is somewhere else', () => {

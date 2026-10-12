@@ -1,4 +1,4 @@
-import { formatRate } from './format.js';
+import { formatChargeOff } from './format.js';
 import { escapeHtml, industryMark } from './industry-icon.js';
 import { industryName } from './naics.js';
 
@@ -17,6 +17,24 @@ export function monthTooltipLabel(row, datasetIndex) {
   if (!row) return '';
   if (datasetIndex === 0) return ` All loans: ${row.n}`;
   return ` Acquisitions: ${row.acquisitions}`;
+}
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+export function monthTitle(ym) {
+  const match = /^(\d{4})-(\d{2})$/.exec(String(ym || ''));
+  if (!match) return String(ym ?? '');
+  const name = MONTH_NAMES[Number(match[2]) - 1];
+  return name ? `${name} ${match[1]}` : String(ym);
+}
+
+// About eighty month labels do not fit. Show the year on the first month
+// and again whenever the year changes. The month stays in the hover title.
+export function yearTick(label, index, labels) {
+  const year = String(label || '').slice(0, 4);
+  if (!/^\d{4}$/.test(year)) return '';
+  const previous = index > 0 ? String(labels?.[index - 1] || '').slice(0, 4) : '';
+  return index === 0 || year !== previous ? year : '';
 }
 
 // The list still shows the twelve industries with the most acquisition loans.
@@ -85,7 +103,7 @@ export function acquisitionIndustryListHtml(rows, sort = DEFAULT_INDUSTRY_SORT) 
   const max = Math.max(1, ...ranked.map((row) => loanCount(row)));
   return ranked.map((row) => {
     const name = industryName(row.code, row.desc);
-    const rate = formatRate(row.chgoff_rate);
+    const rate = formatChargeOff(row.chgoff_rate);
     const count = loanCount(row).toLocaleString('en-US');
     const width = ((loanCount(row) / max) * 100).toFixed(2);
     const bucket = chargeOffBucket(row.chgoff_rate);

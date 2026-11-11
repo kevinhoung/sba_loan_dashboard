@@ -1,5 +1,9 @@
 # SBA loan dashboard
 
+An interactive dashboard that turns official SBA 7(a) loan data into a clear picture of small-business acquisition lending across the United States.
+
+**Live demos:** [GitHub Pages](https://kevinhoung.github.io/sba_loan_dashboard/) · [Vercel](https://vegas-sba-dashboard.vercel.app) · [Vercel (acquisitions)](https://sba-acquisitions-dashboard.vercel.app)
+
 A dashboard of SBA 7(a) loans for looking at small-business acquisitions.
 
 It opens on the entire United States. You can narrow the view by state, then county, then city. An acquisition is a loan the SBA marks as “Change of Ownership,” meaning the money was used to buy an existing business. Restaurants and food service (NAICS 722) and cancelled loans are left out. The figures run from FY2020 through the June 30, 2026 SBA file.

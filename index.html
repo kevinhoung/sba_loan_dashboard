@@ -6,256 +6,310 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="favicon.png" type="image/png" sizes="32x32" />
+<meta name="description" content="SBA 7(a) loans used to buy small businesses, by state, county and city." />
+<meta name="theme-color" content="#FAFAF6" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
   (function () {
     var saved = localStorage.getItem('sba-theme');
-    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
   })();
 </script>
 <style>
-  :root, [data-theme="dark"] {
-    color-scheme: dark;
-    --bg: #0b1020;
-    --panel: #121935;
-    --panel2: #1a2348;
-    --ink: #e8ecf7;
-    --heading: #e8ecf7;
-    --ink-dim: #9aa3c0;
-    --accent: #66e3a8;
-    --accent2: #7ac1ff;
-    --warn: #ffb86b;
-    --danger: #ff7a8a;
-    --border: #283260;
-    --chart-grid: #283260;
-    --bar-good: rgba(102, 227, 168, 0.85);
-    --bar-warn: rgba(255, 184, 107, 0.85);
-    --bar-bad: rgba(255, 122, 138, 0.85);
-    --bar-volume: rgba(122, 193, 255, 0.85);
-    --line-all: #7ac1ff;
-    --line-acq: #66e3a8;
-    --line-all-fill: rgba(122, 193, 255, 0.14);
-    --line-acq-fill: rgba(102, 227, 168, 0.14);
-    --guide: rgba(232, 236, 247, 0.35);
-  }
-  [data-theme="light"] {
+  /* Same system as kevinhoung.com: paper, ink and one red; Instrument Serif for headings and
+     figures, JetBrains Mono caps for labels, DM Sans for text. Ruled rows, square corners,
+     no cards and no shadows. Dark mode keeps the hues and inverts paper and ink. */
+  :root, [data-theme="light"] {
     color-scheme: light;
-    --bg: #f6f7f9;
-    --panel: #ffffff;
-    --panel2: #f3f4f6;
-    --ink: #1a1c1f;
-    --heading: #1e4b8a;
-    --ink-dim: #5c6370;
-    --accent: #0f8a5f;
-    --accent2: #1d6fbf;
-    --warn: #b86e00;
-    --danger: #c4364a;
-    --border: #e4e6eb;
-    --chart-grid: #e6e8ee;
-    --bar-good: rgba(15, 138, 95, 0.88);
-    --bar-warn: rgba(184, 110, 0, 0.88);
-    --bar-bad: rgba(196, 54, 74, 0.88);
-    --bar-volume: rgba(29, 111, 191, 0.88);
-    --line-all: #1d6fbf;
-    --line-acq: #0f8a5f;
-    --line-all-fill: rgba(29, 111, 191, 0.12);
-    --line-acq-fill: rgba(15, 138, 95, 0.12);
-    --guide: rgba(26, 28, 31, 0.28);
+    --bg: #FAFAF6;
+    --panel: #FAFAF6;
+    --panel2: #F0EDE3;
+    --ink: #1A1A16;
+    --heading: #0A0A08;
+    --ink-dim: #55544C;
+    --accent: #C8102E;
+    --border: #D4D0C2;
+    --rule: #1A1A16;
+    --chart-grid: #E6E2D6;
+    --bar-good: #1E7A3C;
+    --bar-warn: #B7791F;
+    --bar-bad: #C8102E;
+    --bar-volume: #8C887B;
+    --line-all: #8C887B;
+    --line-acq: #0A0A08;
+    --line-all-fill: rgba(140, 136, 123, 0.16);
+    --guide: rgba(10, 10, 8, 0.4);
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0E0E0C;
+    --panel: #0E0E0C;
+    --panel2: #1B1A17;
+    --ink: #E8E6DE;
+    --heading: #F4F3EE;
+    --ink-dim: #B3B0A5;
+    --accent: #FF5A70;
+    --border: #34332D;
+    --rule: #E8E6DE;
+    --chart-grid: #24231F;
+    --bar-good: #45A572;
+    --bar-warn: #B98A10;
+    --bar-bad: #E63E66;
+    --bar-volume: #77746A;
+    --line-all: #77746A;
+    --line-acq: #F4F3EE;
+    --line-all-fill: rgba(119, 116, 106, 0.2);
+    --guide: rgba(244, 243, 238, 0.45);
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
-  body { padding: 28px 24px 40px; max-width: 1120px; margin: 0 auto; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
-  h1, h2 { color: var(--heading); }
-  .topbar-title { min-width: 0; max-width: 100%; }
-  @media (min-width: 801px) {
-    .topbar-title { flex: none; white-space: nowrap; }
-  }
-  .topbar h1 { display: inline; margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
-  #whereStatus { margin: 0; color: var(--ink-dim); font-size: 14px; text-align: right; min-width: 0; }
-  #themeToggle { display: inline-block; vertical-align: middle; margin-left: 12px; white-space: nowrap; background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 16px 0; border-bottom: 1px solid var(--border); }
-  .tab { appearance: none; display: inline-flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 12px 18px; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.02em; color: var(--heading); cursor: pointer; border-radius: 10px 10px 0 0; }
-  .tab-icon { width: 16px; height: 16px; flex: none; display: block; }
-  .tab:hover { background: var(--panel2); }
-  .tab.active { border-bottom-color: var(--accent); background: var(--panel); }
-  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
-  .panel h2 { margin: 0 0 10px 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
-  .panel .sub { margin: 0 0 18px 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
-  .kpi-strip { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 0.75fr); }
-  .kpi { padding: 2px 22px; border-right: 1px solid var(--border); min-width: 0; }
-  .kpi:first-child { padding-left: 0; }
-  .kpi:last-child { border-right: 0; padding-right: 0; }
-  .kpi .label { font-size: 13px; color: var(--ink-dim); }
-  .kpi .value { font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.03em; white-space: nowrap; }
-  .deal-note { margin: 16px 0 0; color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
-  .lender-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-  .lender-row:last-child { border-bottom: 0; }
-  .lender-meta { color: var(--ink-dim); white-space: nowrap; }
-  .bank-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; max-width: 100%; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-variant-numeric: tabular-nums; }
+  body { font-size: 16px; line-height: 1.5; padding: 0 clamp(20px, 3.4vw, 50px) 50px; max-width: 1360px; margin: 0 auto; }
+  button, input { font: inherit; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mono, .eyebrow, #whereStatus { font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+
+  /* Site bar, as on kevinhoung.com */
+  .bar { display: flex; align-items: center; gap: clamp(20px, 4vw, 48px); min-height: 76px; border-bottom: 1px solid var(--rule); }
+  .bar a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; color: var(--heading); font: 15px var(--mono); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .bar a b { color: var(--accent); font-weight: 400; margin-right: 14px; }
+  .bar a:hover { color: var(--accent); }
+  #themeToggle { margin-left: auto; min-height: 44px; padding: 0 16px; background: transparent; color: var(--heading); border: 1px solid var(--rule); border-radius: 0; font: 12px var(--mono); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; cursor: pointer; }
+  #themeToggle:hover { background: var(--heading); color: var(--bg); }
+
+  /* Title */
+  .topbar { padding: 34px 0 30px; }
+  h1, h2 { color: var(--heading); font-family: var(--serif); font-weight: 400; }
+  .topbar-title { min-width: 0; max-width: 100%; margin: 18px 0 20px; }
+  .topbar h1 { margin: 0; font-size: clamp(54px, 9.4vw, 148px); line-height: .9; letter-spacing: -.035em; }
+  .topbar h1::after { content: '.'; color: var(--accent); }
+  #whereStatus { margin: 0; min-width: 0; color: var(--heading); }
+
+  /* Place picker */
+  #wherePanel { border-top: 2px solid var(--rule); padding: 20px 0 8px; }
+  .place-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .active-places { display: contents; }
+  .active-places .chips { display: contents; }
+  .chip, #entireUnitedStates { min-height: 44px; padding: 0 16px; background: transparent; color: var(--heading); border: 1px solid var(--rule); border-radius: 0; font: 12px var(--mono); text-transform: uppercase; letter-spacing: .04em; cursor: pointer; }
+  .chip:hover, #entireUnitedStates:hover { color: var(--accent); border-color: var(--accent); }
+  .chip { background: var(--heading); color: var(--bg); }
+  .chip:hover { background: var(--accent); color: var(--bg); }
+  #entireUnitedStates[aria-pressed="true"] { background: var(--heading); color: var(--bg); border-color: var(--heading); }
+  .pickers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px clamp(24px, 4vw, 64px); }
+  @media (max-width: 900px) { .pickers { grid-template-columns: 1fr; } }
+  .picker { position: relative; }
+  .picker input { width: 100%; }
+  .control { display: flex; flex-direction: column; gap: 2px; font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+  .control select, .control input { min-height: 44px; background: transparent; color: var(--heading); border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; padding: 4px 0; font: 24px/1.2 var(--serif); letter-spacing: 0; text-transform: none; }
+  .control input::placeholder { color: var(--ink-dim); opacity: .75; }
+  .control input:focus-visible { outline: 0; border-bottom: 2px solid var(--accent); padding-bottom: 3px; }
+  .options { display: none; position: absolute; z-index: 40; left: 0; right: 0; top: 100%; max-height: 264px; overflow: auto; border: 1px solid var(--rule); border-top: 0; border-radius: 0; background: var(--bg); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14); }
+  .picker.open .options { display: block; }
+  .option { min-height: 44px; padding: 10px 14px; cursor: pointer; font-size: 15px; border-bottom: 1px solid var(--border); }
+  .option:last-child { border-bottom: 0; }
+  .option:hover, .option.selected { background: var(--panel2); }
+  .option.selected { color: var(--accent); }
+  button.option { display: block; width: 100%; background: transparent; border-width: 0 0 1px; border-style: solid; border-color: var(--border); text-align: left; color: inherit; }
+  button.option:hover, button.option.selected { background: var(--panel2); }
+  .option.hint { cursor: default; color: var(--ink-dim); font: 12px/2 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+
+  /* Section tabs: square chips with a red index */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 36px 0 0; }
+  .tab { appearance: none; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px; background: transparent; border: 1px solid var(--rule); border-radius: 0; font: 12px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--heading); cursor: pointer; }
+  .tab b { font-weight: 400; color: var(--accent); }
+  .tab:hover { color: var(--accent); }
+  .tab.active { background: var(--heading); color: var(--bg); }
+  .tab.active:hover { color: var(--bg); }
+  .tab.active b { color: inherit; opacity: .6; }
+
+  /* Sections: a heavy rule, a red index, a serif heading */
+  .tab-panel { counter-reset: section; padding-top: 36px; }
+  .panel { border-top: 2px solid var(--rule); padding: 16px 0 0; margin-bottom: clamp(56px, 7vw, 92px); }
+  .panel h2 { margin: 0 0 22px; font-size: clamp(34px, 4.2vw, 60px); line-height: 1; letter-spacing: -.02em; display: flex; align-items: baseline; gap: clamp(14px, 2vw, 28px); }
+  .panel:not(.prose) > h2::before { counter-increment: section; content: counter(section, decimal-leading-zero); flex: none; font: 400 clamp(15px, 1.5vw, 20px)/1 var(--mono); letter-spacing: -.02em; color: var(--accent); }
+  .panel .sub { margin: -8px 0 22px; max-width: 720px; font-size: 15px; color: var(--ink-dim); line-height: 1.5; }
+  .panel.figures { border-top: 0; padding-top: 0; }
+
+  /* Headline figures */
+  .kpi-strip { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 0.75fr); gap: 24px clamp(20px, 4vw, 64px); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--border); padding: 26px 0 30px; }
+  .kpi { min-width: 0; display: flex; flex-direction: column-reverse; justify-content: flex-end; }
+  .kpi .label { margin-top: 12px; font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim); }
+  .kpi .value { font: 400 clamp(38px, 4.6vw, 68px)/1 var(--serif); letter-spacing: -.02em; color: var(--heading); white-space: nowrap; }
+  .deal-note { margin: 28px 0 0; max-width: 980px; color: var(--heading); font: clamp(24px, 2.5vw, 36px)/1.2 var(--serif); }
+
+  /* Lenders to call */
+  #topLenders { border-top: 1px solid var(--rule); }
+  .lender-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .lender-row .bank-name { font: 400 clamp(24px, 2.2vw, 32px)/1.2 var(--serif); color: var(--heading); align-items: center; gap: 14px; }
+  .lender-row .bank-mark { width: 26px; height: 26px; }
+  .lender-meta { font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); white-space: nowrap; }
+
+  .bank-name { display: inline-flex; align-items: center; gap: 10px; vertical-align: middle; max-width: 100%; }
   .bank-name > span:last-child { min-width: 0; white-space: normal; overflow-wrap: break-word; }
-  .bank-mark { width: 22px; height: 22px; border-radius: 6px; background: #fff; object-fit: contain; flex: none; padding: 2px; box-sizing: border-box; }
-  .bank-initials { display: inline-flex; align-items: center; justify-content: center; background: var(--panel2); color: var(--ink-dim); font-size: 9px; font-weight: 600; letter-spacing: 0.02em; padding: 0; line-height: 1; }
-  .industry-name { display: inline-flex; align-items: center; gap: 8px; vertical-align: middle; }
+  .bank-mark { width: 22px; height: 22px; border-radius: 0; background: #fff; object-fit: contain; flex: none; padding: 2px; box-sizing: border-box; }
+  .bank-initials { display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 1px solid var(--border); color: var(--ink-dim); font: 500 9px/1 var(--mono); letter-spacing: 0; padding: 0; }
+  .industry-name { display: inline-flex; align-items: center; gap: 10px; vertical-align: middle; }
   .industry-mark { width: 18px; height: 18px; flex: none; color: var(--ink-dim); display: inline-flex; }
-  .industry-mark svg { width: 18px; height: 18px; display: block; }
-  .industry-rank { display: grid; grid-template-columns: minmax(0, 1fr) 6.25ch minmax(110px, 32%) max-content; column-gap: 12px; align-items: center; font-size: 13px; }
+  .industry-mark svg { width: 18px; height: 18px; display: block; stroke-width: 1.4; }
+
+  /* Acquisition industries */
+  .industry-rank { display: grid; grid-template-columns: minmax(0, 1fr) 6.25ch minmax(110px, 32%) max-content; column-gap: 20px; align-items: center; font-size: 13px; }
   .industry-rank-head,
   #acqIndustryChart,
   .industry-rank-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; column-gap: inherit; align-items: center; font-size: 1rem; min-width: 0; }
-  .industry-rank-row { padding: 9px 4px; border-bottom: 1px solid var(--border); border-radius: 8px; }
-  .industry-rank-row:last-child { border-bottom: 0; }
+  .industry-rank-row { padding: 13px 0; border-bottom: 1px solid var(--border); }
   .industry-rank-row:hover, .industry-rank-row:focus-visible { background: var(--panel2); }
-  .industry-rank-row .industry-name { align-items: flex-start; min-width: 0; }
+  .industry-rank-row .industry-name { align-items: flex-start; min-width: 0; color: var(--heading); font-size: 17px; }
   .industry-rank-row .industry-name > span:last-child { min-width: 0; white-space: normal; overflow: visible; text-overflow: unset; overflow-wrap: break-word; line-height: 1.35; }
-  .industry-rank-row .industry-mark { margin-top: 1px; }
-  .industry-rank-rate, .industry-rank-count { font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
-  .industry-rank-rate { display: block; width: 100%; text-align: right; }
+  .industry-rank-row .industry-mark { margin-top: 2px; }
+  .industry-rank-rate, .industry-rank-count { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  .industry-rank-rate { display: block; width: 100%; text-align: right; color: var(--heading); }
   .industry-rank-count { display: block; width: 100%; color: var(--ink-dim); text-align: right; }
   .industry-rank-row > .industry-pop { grid-column: 1; grid-row: 1; }
-  .industry-rank-track { height: 10px; border-radius: 5px; background: var(--border); }
-  .industry-rank-bar { display: block; height: 10px; border-radius: 5px; min-width: 2px; }
+  .industry-rank-track { height: 8px; background: var(--chart-grid); }
+  .industry-rank-bar { display: block; height: 8px; min-width: 2px; }
   .industry-rank-bar.bucket-good { background: var(--bar-good); }
   .industry-rank-bar.bucket-warn { background: var(--bar-warn); }
   .industry-rank-bar.bucket-bad { background: var(--bar-bad); }
   .industry-rank-bar.bucket-volume { background: var(--bar-volume); }
-  .industry-pop { position: fixed; z-index: 50; width: 260px; padding: 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18); font-size: 13px; font-weight: 400; line-height: 1.45; pointer-events: none; }
+  .industry-pop, .term-pop { position: fixed; z-index: 50; width: 260px; padding: 10px 12px; background: var(--heading); color: var(--bg); border: 0; border-radius: 0; font: 400 13px/1.45 var(--sans); letter-spacing: 0; text-align: left; text-transform: none; white-space: normal; }
+  .industry-pop { pointer-events: none; }
   .industry-pop[hidden] { display: none !important; }
   .industry-pop strong, .industry-pop span { display: block; }
-  .industry-pop strong { margin-bottom: 4px; font-size: 12px; font-weight: 600; }
-  .industry-rank-head { padding: 0 4px 8px; margin-bottom: 2px; border-bottom: 1px solid var(--ink-dim); }
-  .industry-col { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12px; font-weight: 500; color: var(--ink-dim); cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; white-space: nowrap; }
+  .industry-pop strong, .term-pop strong { display: block; margin-bottom: 4px; font: 400 11px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; opacity: .75; }
+  .industry-rank-head { padding: 0 0 10px; border-bottom: 1px solid var(--rule); }
+  .industry-col { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; gap: 10px; white-space: nowrap; }
+  .industry-col:hover, .industry-col.is-sorted { color: var(--heading); }
   .industry-col-end { justify-content: flex-end; }
   .industry-col[data-sort-key="loans"] { width: 100%; }
   .industry-col[data-sort-key="chargeoff"] { justify-self: end; width: max-content; min-width: 0; }
   .industry-col[data-sort-key="chargeoff"] .col-arrows { order: -1; }
-  .industry-col:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .col-arrows { display: inline-flex; opacity: 0.35; }
   .industry-col:hover .col-arrows, .industry-col.is-sorted .col-arrows { opacity: 1; }
-  .col-arrows .arrow-up, .col-arrows .arrow-down { fill: currentColor; opacity: 0.45; }
-  .industry-col[aria-sort="ascending"] .arrow-up, .industry-col[aria-sort="descending"] .arrow-down { opacity: 1; }
-  [data-theme="light"] .industry-col { color: var(--heading); }
-  .industry-legend { margin: 0 0 14px; }
-  .industry-legend-ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: var(--ink); }
+  .col-arrows .arrow-up, .col-arrows .arrow-down { fill: currentColor; opacity: 0.4; }
+  .industry-col[aria-sort="ascending"] .arrow-up, .industry-col[aria-sort="descending"] .arrow-down { opacity: 1; fill: var(--accent); }
+  .industry-legend { margin: 0 0 22px; }
+  .industry-legend-ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin: 0 0 10px; font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
   .industry-legend-ranges .legend-range { display: inline-flex; align-items: center; white-space: nowrap; }
   .industry-legend .sub { margin: 0; }
   @media (max-width: 700px) {
-    .industry-rank { grid-template-columns: minmax(0, 1fr) 6.25ch max-content; }
+    .industry-rank { grid-template-columns: minmax(0, 1fr) 6.25ch max-content; column-gap: 12px; }
     .industry-rank-head-gap { display: none; }
-    .industry-rank-row { grid-template-rows: auto auto; row-gap: 6px; }
-    .industry-rank-row > .industry-name { grid-column: 1; grid-row: 1; }
+    .industry-rank-row { grid-template-rows: auto auto; row-gap: 8px; }
+    .industry-rank-row > .industry-name { grid-column: 1; grid-row: 1; font-size: 16px; }
     .industry-rank-rate { grid-column: 2; grid-row: 1; }
     .industry-rank-count { grid-column: 3; grid-row: 1; }
     .industry-rank-track { grid-column: 1 / -1; grid-row: 2; }
   }
   @media (max-width: 800px) {
-    .topbar { align-items: stretch; flex-direction: column; }
-    #whereStatus { text-align: left; }
-    .kpi-strip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 16px 24px; }
-    .kpi, .kpi:first-child, .kpi:last-child { border-right: 0; padding: 0; }
-    .kpi .value { font-size: 24px; }
-    .tab { font-size: 16px; padding: 10px 14px; }
+    .bar { gap: 18px; }
+    .bar a { font-size: 13px; }
+    .bar a b { margin-right: 10px; }
+    .topbar { padding: 26px 0 24px; }
+    .kpi-strip { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 20px; padding: 22px 0 24px; }
+    .lender-row { flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 0; }
+    .tab { padding: 0 14px; gap: 10px; }
+  }
+  @media (max-width: 480px) {
+    .bar a + a { display: none; }
   }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
   .row2 > *, .row3 > *, .panel, .grid-wrap, .chart-wrap { min-width: 0; }
   @media (max-width: 900px) { .row2, .row3 { grid-template-columns: 1fr; } }
+
+  /* Charts */
   .chart-wrap { position: relative; height: 320px; }
   .chart-wrap.tall { height: 420px; }
   .chart-wrap.sectors { height: 840px; }
   .chart-wrap.sizes { height: 436px; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 6px; }
-  .tag-green { background: rgba(102,227,168,0.15); color: var(--accent); border: 1px solid rgba(102,227,168,0.4); }
-  .tag-blue { background: rgba(122,193,255,0.15); color: var(--accent2); border: 1px solid rgba(122,193,255,0.4); }
-  .tag-orange { background: rgba(255,184,107,0.15); color: var(--warn); border: 1px solid rgba(255,184,107,0.4); }
-  .tag-red { background: rgba(255,122,138,0.15); color: var(--danger); border: 1px solid rgba(255,122,138,0.4); }
-  .legend-note { font-size: 12px; color: var(--ink-dim); margin: 8px 0; line-height: 1.5; }
+  .chart-wrap.trend { height: 260px; }
+  .chart-wrap.trend-small { height: 200px; }
+  .chart-stack { display: grid; gap: 34px; }
+  .chart-stack figure { margin: 0; min-width: 0; }
+  .chart-stack figcaption { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--border); font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--heading); }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 0; margin-right: 8px; vertical-align: middle; flex: none; }
+  .chart-stack .swatch { width: 18px; height: 2px; margin-right: 0; }
+  .legend-note { max-width: 760px; font-size: 16px; color: var(--ink); margin: 0 0 14px; line-height: 1.6; }
+
+  /* Tables */
   .grid-wrap { background: transparent; max-width: 100%; overflow: auto; }
   .gridjs-container, .gridjs-wrapper { max-width: 100%; min-width: 0; }
-  .gridjs-container { color: var(--ink); font-size: 14px; }
+  .gridjs-container { color: var(--ink); font-size: 15px; }
   .gridjs-wrapper, .gridjs-footer, .gridjs-table, .gridjs-thead, .gridjs-tbody, .gridjs-tr { border: 0 !important; box-shadow: none !important; background: transparent !important; }
-  .gridjs-table { table-layout: auto !important; width: 100%; }
-  .gridjs-th, .gridjs-td { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; padding: 11px 10px !important; box-shadow: none !important; vertical-align: baseline !important; }
-  .gridjs-th { border-bottom: 1px solid var(--ink-dim) !important; }
+  .gridjs-wrapper { overflow-x: auto; }
+  .gridjs-table { table-layout: auto !important; width: 100%; border-collapse: collapse; }
+  .gridjs-th, .gridjs-td { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; padding: 13px 22px 13px 0 !important; box-shadow: none !important; vertical-align: baseline !important; text-align: left; }
+  .gridjs-th:last-child, .gridjs-td:last-child { padding-right: 0 !important; }
+  .gridjs-th { border-bottom: 1px solid var(--rule) !important; padding-top: 0 !important; padding-bottom: 10px !important; }
   th.gridjs-th-sort { cursor: pointer; }
-  .gridjs-th, .gridjs-th-content { color: var(--ink-dim) !important; font-size: 12px !important; font-weight: 500 !important; letter-spacing: 0; white-space: nowrap !important; overflow: visible !important; text-overflow: unset !important; line-height: 1.3; }
-  [data-theme="light"] .gridjs-th, [data-theme="light"] .gridjs-th-content { color: var(--heading) !important; }
-  .gridjs-td { font-size: 14px !important; font-variant-numeric: tabular-nums; }
+  .gridjs-th, .gridjs-th-content { color: var(--ink-dim) !important; font: 400 12px/1.5 var(--mono) !important; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap !important; overflow: visible !important; text-overflow: unset !important; }
+  .gridjs-th:hover, .gridjs-th:hover .gridjs-th-content { color: var(--heading) !important; }
+  .gridjs-td { font-size: 15px !important; font-variant-numeric: tabular-nums; }
+  .gridjs-td:first-child { color: var(--heading) !important; }
   .gridjs-td:not([data-align="end"]) { white-space: normal !important; }
-  .gridjs-td[data-align="end"] { white-space: nowrap !important; }
-  .gridjs-tbody .gridjs-tr:last-child .gridjs-td { border-bottom: 0 !important; }
+  .gridjs-td[data-align="end"] { white-space: nowrap !important; font-family: var(--mono); font-size: 13px !important; }
   .gridjs-tbody .gridjs-tr:hover .gridjs-td { background: var(--panel2) !important; }
   .gridjs-th[data-align="end"], .gridjs-td[data-align="end"] { text-align: right !important; width: 1%; white-space: nowrap !important; }
   button.gridjs-sort { float: none !important; display: inline-block !important; vertical-align: -4px; margin: 0 0 0 12px !important; }
   button.gridjs-sort { appearance: none; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; line-height: 0; }
-  button.gridjs-sort .arrow-up, button.gridjs-sort .arrow-down { fill: currentColor; opacity: 0.45; }
-  button.gridjs-sort[aria-sort="ascending"] .arrow-up, button.gridjs-sort[aria-sort="descending"] .arrow-down { opacity: 1; }
+  button.gridjs-sort .arrow-up, button.gridjs-sort .arrow-down { fill: currentColor; opacity: 0.4; }
+  button.gridjs-sort[aria-sort="ascending"] .arrow-up, button.gridjs-sort[aria-sort="descending"] .arrow-down { opacity: 1; fill: var(--accent); }
   th.gridjs-th-sort .gridjs-th-content { float: none !important; display: inline !important; width: auto !important; }
   .term { cursor: help; border-bottom: 1px dotted var(--ink-dim); }
-  .term-pop { position: fixed; z-index: 50; width: 280px; padding: 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18); font-size: 13px; font-weight: 400; line-height: 1.45; letter-spacing: 0; text-align: left; white-space: normal; }
+  .term-pop { width: 280px; }
   .term-pop[hidden] { display: none !important; }
-  .term-pop strong { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; }
   .gridjs-sort { opacity: 0.35; }
   .gridjs-th:hover .gridjs-sort, .gridjs-sort-asc, .gridjs-sort-desc, .gridjs-sort[aria-sort="ascending"], .gridjs-sort[aria-sort="descending"] { opacity: 1; }
-  .gridjs-search { float: none; margin: 2px 0 10px; }
-  .gridjs-search input, .gridjs-input { background: transparent !important; color: var(--ink) !important; border: 0 !important; border-bottom: 1px solid var(--border) !important; border-radius: 0 !important; box-shadow: none !important; width: 220px; max-width: 100%; padding: 6px 0 !important; font-size: 13px !important; }
-  .gridjs-footer { color: var(--ink-dim) !important; padding: 8px 0 0 !important; box-shadow: none !important; border: 0 !important; }
-  .gridjs-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
-  .gridjs-pagination .gridjs-pages { display: flex; align-items: center; gap: 2px; }
-  .gridjs-summary { font-size: 13px; }
+  .gridjs-search { float: none; margin: 0 0 26px; }
+  .gridjs-search input, .gridjs-input { background: transparent !important; color: var(--heading) !important; border: 0 !important; border-bottom: 1px solid var(--rule) !important; border-radius: 0 !important; box-shadow: none !important; width: 320px; max-width: 100%; min-height: 44px; padding: 4px 0 !important; font: 22px/1.2 var(--serif) !important; }
+  .gridjs-input::placeholder { color: var(--ink-dim); opacity: .75; }
+  .gridjs-input:focus-visible { outline: 0; border-bottom: 2px solid var(--accent) !important; }
+  .gridjs-footer { color: var(--ink-dim) !important; padding: 14px 0 0 !important; box-shadow: none !important; border: 0 !important; }
+  .gridjs-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; font: 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+  .gridjs-pagination .gridjs-pages { display: flex; align-items: center; gap: 4px; }
+  .gridjs-summary b { font-weight: 400; color: var(--heading); }
   .gridjs-message { text-align: center; color: var(--ink-dim); }
-  .gridjs-pagination button, .gridjs-pages button { background: transparent !important; border: 0 !important; color: var(--ink-dim) !important; box-shadow: none !important; min-width: 28px; padding: 4px 6px !important; cursor: pointer; }
+  .gridjs-pagination button, .gridjs-pages button { background: transparent !important; border: 1px solid transparent !important; border-radius: 0; color: var(--ink-dim) !important; box-shadow: none !important; min-width: 36px; min-height: 36px; padding: 4px 10px !important; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+  .gridjs-pagination button:not(:disabled):not(.gridjs-spread):hover { color: var(--accent) !important; }
   .gridjs-pagination button:disabled { opacity: 0.35; cursor: default; }
-  .gridjs-currentPage { color: var(--ink) !important; font-weight: 600; }
-  .insight { background: var(--panel2); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 6px; margin: 10px 0; font-size: 13px; line-height: 1.6; }
-  .insight strong { color: var(--accent); }
-  .controls { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .control { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--ink-dim); }
-  .control select, .control input { background: var(--panel2); color: var(--ink); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 13px; }
-  .footnote { color: var(--ink-dim); font-size: 11px; margin-top: 18px; line-height: 1.5; padding: 14px; border-top: 1px solid var(--border); }
-  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
-  .chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 2px 0 10px; font-size: 12px; color: var(--ink); }
-  .chart-legend .legend-item { display: inline-flex; align-items: center; gap: 6px; }
-  .chart-legend .swatch { width: 18px; height: 3px; margin-right: 0; }
-  .pickers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  @media (max-width: 900px) { .pickers { grid-template-columns: 1fr; } }
-  .picker input { width: 100%; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin: 8px 0; }
-  .active-places { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
-  .active-places .chips { min-height: 0; margin: 0; }
-  .chip { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 8px; font-size: 13px; cursor: pointer; }
-  .options { display: none; max-height: 220px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); margin-top: 6px; }
-  .picker.open .options { display: block; }
-  .option { padding: 7px 10px; cursor: pointer; font-size: 13px; }
-  .option:hover, .option.selected { background: rgba(122,193,255,0.16); }
-  .option.selected { color: var(--accent); }
-  button.chip, button.option { font: inherit; }
-  button.option { display: block; width: 100%; background: transparent; border: 0; text-align: left; color: inherit; }
-  .option.hint { cursor: default; color: var(--ink-dim); }
-  .place-actions { display: flex; margin-bottom: 12px; }
-  #entireUnitedStates { background: transparent; color: var(--ink); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  #entireUnitedStates[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+  .gridjs-pagination button.gridjs-currentPage { background: var(--heading) !important; color: var(--bg) !important; }
+
+  /* Methodology */
+  .prose h2 { font-size: clamp(28px, 2.6vw, 38px); line-height: 1.1; letter-spacing: -.01em; margin: 44px 0 14px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .prose h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .prose ul { padding-left: 1.1em; }
+  .prose li { margin-bottom: 8px; }
+  .prose strong { font-weight: 500; color: var(--heading); }
+
+  .footnote { border-top: 2px solid var(--rule); padding: 18px 0 0; max-width: none; font: 12px/1.7 var(--mono); letter-spacing: .02em; color: var(--ink-dim); }
 </style>
 </head>
 <body>
+<nav class="bar" aria-label="Site"><a href="https://kevinhoung.com/">Kevin Houng</a><a href="https://kevinhoung.com/#work"><b>02</b> Projects</a><button type="button" id="themeToggle">Light</button></nav>
 <header class="topbar">
+  <p class="eyebrow">SBA 7(a) loans · FY2020 to June 2026</p>
   <div class="topbar-title">
     <h1>SBA Acquisitions Loans</h1>
-    <button type="button" id="themeToggle">Light</button>
   </div>
   <p id="whereStatus">United States · all states</p>
 </header>
 
-<div class="panel" id="wherePanel">
+<div id="wherePanel">
   <div class="place-actions">
     <button type="button" id="entireUnitedStates" aria-pressed="true">Entire United States</button>
-  </div>
-  <div class="active-places">
-    <div id="stateChips" class="chips"></div>
-    <div id="countyChips" class="chips"></div>
-    <div id="cityChips" class="chips"></div>
+    <div class="active-places">
+      <div id="stateChips" class="chips"></div>
+      <div id="countyChips" class="chips"></div>
+      <div id="cityChips" class="chips"></div>
+    </div>
   </div>
   <div class="pickers">
     <div class="picker">
@@ -274,15 +328,15 @@
 </div>
 
 <div class="tabs" role="tablist">
-  <button type="button" class="tab active" data-tab="focus" role="tab" aria-selected="true"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 L13.4 13.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Acquisition Focus</button>
-  <button type="button" class="tab" data-tab="explorer" role="tab" aria-selected="false"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.3 5.7 L8.7 8.7 L5.7 10.3 L7.3 7.3 Z" fill="currentColor"/></svg>Full Explorer</button>
-  <button type="button" class="tab" data-tab="methods" role="tab" aria-selected="false"><svg class="tab-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 h6.1 L13 5.3 V13.5 H4 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 2.7 V5.3 H13 M6.2 8.2 H10.8 M6.2 10.7 H10.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Methodology &amp; Sources</button>
+  <button type="button" class="tab active" data-tab="focus" role="tab" aria-selected="true"><b>01</b>Acquisition Focus</button>
+  <button type="button" class="tab" data-tab="explorer" role="tab" aria-selected="false"><b>02</b>Full Explorer</button>
+  <button type="button" class="tab" data-tab="methods" role="tab" aria-selected="false"><b>03</b>Methodology &amp; Sources</button>
 </div>
 
 <!-- ================== FOCUS TAB ================== -->
 <div class="tab-panel" id="focus">
 
-  <div class="panel">
+  <div class="panel figures">
     <div class="kpi-strip" id="kpiGrid"></div>
     <p class="deal-note" id="dealNote"></p>
   </div>
@@ -310,12 +364,16 @@
 
   <div class="panel">
     <h2>Monthly Approvals</h2>
-    <p class="sub">All loans use the left scale. Acquisitions use the right scale.</p>
-    <div class="chart-legend" id="monthlyLegend">
-      <span class="legend-item"><span class="swatch" style="background:var(--line-all)"></span><span class="term" tabindex="0">All loans<span class="term-pop" role="tooltip" hidden><strong>All loans</strong>Every eligible SBA 7(a) loan approved that month in the place you picked. Restaurants (NAICS 722) and cancelled loans are left out. Startups, existing businesses, newer businesses, and acquisitions are all included.</span></span></span>
-      <span class="legend-item"><span class="swatch" style="background:var(--line-acq)"></span><span class="term" tabindex="0">Acquisitions<span class="term-pop" role="tooltip" hidden><strong>Acquisitions</strong>Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business. These loans are already included in All loans. The green line is that subset.</span></span></span>
+    <div class="chart-stack" id="monthlyLegend">
+      <figure>
+        <figcaption><span class="swatch" style="background:var(--line-all)"></span><span class="term" tabindex="0">All loans<span class="term-pop" role="tooltip" hidden><strong>All loans</strong>Every eligible SBA 7(a) loan approved that month in the place you picked. Restaurants (NAICS 722) and cancelled loans are left out. Startups, existing businesses, newer businesses, and acquisitions are all included.</span></span></figcaption>
+        <div class="chart-wrap trend"><canvas id="monthlyTrendChart"></canvas></div>
+      </figure>
+      <figure>
+        <figcaption><span class="swatch" style="background:var(--line-acq)"></span><span class="term" tabindex="0">Acquisitions<span class="term-pop" role="tooltip" hidden><strong>Acquisitions</strong>Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business. These loans are already included in All loans.</span></span></figcaption>
+        <div class="chart-wrap trend-small"><canvas id="monthlyAcqChart"></canvas></div>
+      </figure>
     </div>
-    <div class="chart-wrap tall"><canvas id="monthlyTrendChart"></canvas></div>
   </div>
 
   <div class="panel">
@@ -412,14 +470,14 @@
 
 <!-- ================== METHODOLOGY ================== -->
 <div class="tab-panel" id="methods" style="display:none;">
-  <div class="panel">
+  <div class="panel prose">
     <h2>What This Dashboard Is</h2>
     <p class="legend-note">A view of SBA 7(a) loans from FY2020 through June 2026, filtered to the states, counties, and cities you pick. The page opens on the entire United States. Acquisition figures include every Change of Ownership loan, up to the $5 million program maximum. Restaurants and food service (NAICS 722) and cancelled loans are excluded. A borrower outside the project state is labeled with that state.</p>
 
-    <h2 style="margin-top: 18px;">How "Recession Resilience" Is Measured</h2>
+    <h2>How "Recession Resilience" Is Measured</h2>
     <p class="legend-note">For each industry, we look at SBA 7(a) loans approved in FY2020 through FY2023 (loans that have had at least roughly 2 years to season) and compute the share that ended up charged off. Cancelled loans are excluded from the denominator. The FY2020–2023 window includes the COVID-19 shock and the 2022–2024 interest rate spike, so it's a useful real-world stress test for which industries survive turbulence.</p>
 
-    <h2 style="margin-top: 18px;">Caveats &amp; What This Doesn't Tell You</h2>
+    <h2>Caveats &amp; What This Doesn't Tell You</h2>
     <ul class="legend-note">
       <li>SBA 7(a) loans are a sample of small business activity, not the whole picture. Cash businesses and self-funded deals don't show up.</li>
       <li>"Change of Ownership" is the SBA's tag for acquisition financing, but it doesn't reveal seller-financing structure. You'll need to confirm seller carry directly with brokers and lenders.</li>
@@ -431,7 +489,7 @@
       <li>A lender mark is that bank's site icon when the name matches one institution. Shared names, including Citizens Bank, and lenders without a verified site show initials.</li>
     </ul>
 
-    <h2 style="margin-top: 18px;">Source Files</h2>
+    <h2>Source Files</h2>
     <ul class="legend-note">
       <li><strong>FOIA_7a_FY2020_Present_asof_260630.csv</strong> — primary dataset. SBA's FOIA release of every 7(a) loan FY2020 through June 2026. 388,338 rows nationally, 2,964 for Clark County, 2,583 after restaurant exclusion, 2,187 after cancelled loans are removed.</li>
       <li><strong>7a_504_foia_data_dictionary.xlsx</strong> — column definitions.</li>
@@ -439,7 +497,7 @@
       <li>The bkstudy and lender activity files were inspected but their pre-aggregated views overlap with what we computed directly from the FOIA data, so they aren't relied on for the main charts.</li>
     </ul>
 
-    <h2 style="margin-top: 18px;">Suggested Next Steps</h2>
+    <h2>Suggested Next Steps</h2>
     <ul class="legend-note">
       <li>Pick 2–3 industries from the "Best-Fit" table and search BizBuySell, BizQuest, and LoopNet for live Vegas listings in those NAICS codes.</li>
       <li>Email or call 2–3 of the top lenders here to pre-qualify before you make offers. Live Oak, Newtek, Byline, and Readycap are usually responsive to acquisition deals.</li>
@@ -617,16 +675,19 @@ function rateColor(rate) {
   return cssVar('--bar-bad');
 }
 function axis(title, beginAtZero) {
-  const scale = { ticks: { color: cssVar('--ink') }, grid: { color: cssVar('--chart-grid') } };
-  if (title) scale.title = { display: true, text: title, color: cssVar('--ink-dim') };
+  const scale = { ticks: { color: cssVar('--ink-dim') }, grid: { color: cssVar('--chart-grid') }, border: { display: false } };
+  if (title) scale.title = { display: true, text: title.toUpperCase(), color: cssVar('--ink-dim'), padding: { top: 10 } };
   if (beginAtZero) scale.beginAtZero = true;
   return scale;
 }
 function yearAxis() {
   const scale = axis();
+  scale.grid.display = false;
   scale.ticks.autoSkip = false;
   scale.ticks.maxRotation = 0;
   scale.ticks.callback = function (value) {
+    // The file opens in October 2019. Three months of 2019 leave no room for its label beside 2020.
+    if (value === 0 && String(this.getLabelForValue(value)).slice(5) > '06') return '';
     return yearTick(this.getLabelForValue(value), value, this.chart.data.labels);
   };
   return scale;
@@ -657,9 +718,22 @@ function paintAcquisitionIndustries() {
 function renderDashboard(nextData) {
   DATA = nextData;
   clearViews();
-  Chart.defaults.font.family = 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+  Chart.defaults.font.family = "'JetBrains Mono', ui-monospace, monospace";
+  Chart.defaults.font.size = 11;
   Chart.defaults.color = cssVar('--ink-dim');
   Chart.defaults.animation = false;
+  Object.assign(Chart.defaults.plugins.tooltip, {
+    backgroundColor: cssVar('--heading'),
+    titleColor: cssVar('--bg'),
+    bodyColor: cssVar('--bg'),
+    cornerRadius: 0,
+    padding: 10,
+    boxWidth: 8,
+    boxHeight: 8,
+    boxPadding: 6,
+    titleFont: { weight: 400 },
+    bodyFont: { family: "'DM Sans', sans-serif", size: 13 },
+  });
 
 // ========== KPIS ==========
 const k = DATA.kpis;
@@ -703,6 +777,7 @@ new Chart(resilienceCanvas, {
         label: 'Seasoned loans',
         data: sectors.map(s => s.n),
         backgroundColor: sectors.map(s => rateColor(s.chgoff_rate)),
+        maxBarThickness: 12,
       }
     ]
   },
@@ -786,8 +861,8 @@ new Chart(sizeCanvas, {
   data: {
     labels: sizeLabels.map(sizeChartLabel),
     datasets: [
-      { label: 'All loans', data: sizeLabels.map(k => DATA.size_distribution[k] || 0), backgroundColor: cssVar('--line-all') },
-      { label: 'Acquisitions', data: sizeLabels.map(k => DATA.acq_size_distribution[k] || 0), backgroundColor: cssVar('--line-acq') },
+      { label: 'All loans', data: sizeLabels.map(k => DATA.size_distribution[k] || 0), backgroundColor: cssVar('--line-all'), maxBarThickness: 12 },
+      { label: 'Acquisitions', data: sizeLabels.map(k => DATA.acq_size_distribution[k] || 0), backgroundColor: cssVar('--line-acq'), maxBarThickness: 12 },
     ]
   },
   options: {
@@ -842,38 +917,56 @@ const hoverGuide = {
     ctx.restore();
   }
 };
-new Chart(document.getElementById('monthlyTrendChart'), {
-  type: 'line',
-  plugins: [hoverGuide],
-  data: {
-    labels: mt.map(m => m.ym),
-    datasets: [
-      { label: 'All loans', yAxisID: 'y', data: mt.map(m => m.n), borderColor: cssVar('--line-all'), backgroundColor: cssVar('--line-all-fill'), fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: cssVar('--line-all'), pointHoverRadius: lineHover.pointHoverRadius },
-      { label: 'Acquisitions', yAxisID: 'yAcq', data: mt.map(m => m.acquisitions), borderColor: cssVar('--line-acq'), backgroundColor: cssVar('--line-acq-fill'), fill: true, tension: 0.3, ...lineHover, pointHoverBackgroundColor: cssVar('--line-acq'), pointHoverRadius: lineHover.pointHoverRadius },
-    ]
-  },
-  options: {
-    interaction: indexHover,
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        mode: indexHover.mode,
-        intersect: indexHover.intersect,
-        callbacks: {
-          title: items => monthTitle(mt[items[0].dataIndex].ym),
-          label: ctx => monthTooltipLabel(mt[ctx.dataIndex], ctx.datasetIndex)
-        }
-      }
+// One measure per chart. All loans run about ten times acquisitions, so a shared
+// scale flattens acquisitions and two scales on one plot invite false crossings.
+// Hovering either chart marks the same month on the other.
+const trendCharts = [];
+function trendChart(id, key, color, fill) {
+  const chart = new Chart(document.getElementById(id), {
+    type: 'line',
+    plugins: [hoverGuide],
+    data: {
+      labels: mt.map(m => m.ym),
+      datasets: [
+        { label: key === 'n' ? 'All loans' : 'Acquisitions', data: mt.map(m => m[key]), borderColor: color, backgroundColor: fill, fill: Boolean(fill), borderWidth: 1.5, tension: 0.3, ...lineHover, pointHoverBackgroundColor: color, pointHoverBorderColor: cssVar('--bg') },
+      ]
     },
-    scales: {
-      x: yearAxis(),
-      y: axis('All loans', true),
-      yAcq: rightAxis('Acquisitions')
+    options: {
+      interaction: indexHover,
+      responsive: true,
+      maintainAspectRatio: false,
+      onHover: (event, active) => {
+        if (event.native == null) return;
+        trendCharts.forEach((other) => {
+          if (other === chart) return;
+          const points = active.length ? [{ datasetIndex: 0, index: active[0].index }] : [];
+          other.setActiveElements(points);
+          other.tooltip.setActiveElements(points, { x: 0, y: 0 });
+          other.update();
+        });
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: indexHover.mode,
+          intersect: indexHover.intersect,
+          displayColors: false,
+          callbacks: {
+            title: items => monthTitle(mt[items[0].dataIndex].ym),
+            label: ctx => monthTooltipLabel(mt[ctx.dataIndex], key === 'n' ? 0 : 1).trim()
+          }
+        }
+      },
+      scales: {
+        x: yearAxis(),
+        y: { ...axis('', true), ticks: { color: cssVar('--ink-dim'), maxTicksLimit: 5, precision: 0 } }
+      }
     }
-  }
-});
+  });
+  trendCharts.push(chart);
+}
+trendChart('monthlyTrendChart', 'n', cssVar('--line-all'), cssVar('--line-all-fill'));
+trendChart('monthlyAcqChart', 'acquisitions', cssVar('--line-acq'), '');
 
 // ========== SECTOR GRID ==========
 renderDataTable(document.getElementById('sectorGrid'), {
@@ -1098,6 +1191,8 @@ function syncThemeButton() {
   button.setAttribute('aria-label', dark ? 'Switch to light colors' : 'Switch to dark colors');
 }
 syncThemeButton();
+// Canvas text is drawn once; redraw when the web fonts arrive.
+document.fonts?.ready.then(() => document.querySelectorAll('canvas').forEach((canvas) => Chart.getChart(canvas)?.update()));
 document.querySelector('.industry-rank-head').addEventListener('click', (event) => {
   const button = event.target.closest('.industry-col');
   if (!button || !DATA) return;
@@ -1111,6 +1206,7 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   document.documentElement.dataset.theme = next;
   localStorage.setItem('sba-theme', next);
+  document.querySelector('meta[name="theme-color"]').content = next === 'dark' ? '#0E0E0C' : '#FAFAF6';
   syncThemeButton();
   if (DATA) renderDashboard(DATA);
 });
@@ -1129,6 +1225,11 @@ document.addEventListener('mousedown', (event) => {
   if (!event.target.closest('.picker')) {
     document.querySelectorAll('.picker.open').forEach((picker) => picker.classList.remove('open'));
   }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  document.querySelectorAll('.picker.open').forEach((picker) => picker.classList.remove('open'));
 });
 
 document.getElementById('entireUnitedStates').addEventListener('click', async () => {

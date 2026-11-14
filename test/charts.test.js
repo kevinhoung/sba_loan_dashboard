@@ -29,21 +29,24 @@ test('the published October gap is filled before the chart draws it', () => {
   assert.equal(october.acquisitions, 0);
 });
 
-test('the monthly chart uses the shared hover point and both-series tooltip', () => {
+test('monthly approvals draw all loans and acquisitions as two single-scale charts', () => {
   const page = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(page, /fillMonthGaps\(DATA\.monthly_trend\)/);
   assert.match(page, /interaction: indexHover/);
-  assert.match(page, /monthTooltipLabel\(mt\[ctx\.dataIndex\], ctx\.datasetIndex\)/);
-  assert.match(page, /pointHoverRadius: lineHover\.pointHoverRadius/);
+  assert.match(page, /monthTooltipLabel\(mt\[ctx\.dataIndex\], key === 'n' \? 0 : 1\)/);
+  assert.match(page, /\.\.\.lineHover, pointHoverBackgroundColor: color/);
   assert.match(page, /id="monthlyLegend"/);
   assert.match(page, /Every eligible SBA 7\(a\) loan approved that month in the place you picked/);
   assert.match(page, /Loans SBA tags Change of Ownership, meaning the money was used to buy an existing business/);
   assert.match(page, /plugins: \{\s*legend: \{ display: false \},\s*tooltip: \{\s*mode: indexHover\.mode/);
   assert.match(page, /title: items => monthTitle\(mt\[items\[0\]\.dataIndex\]\.ym\)/);
-  assert.match(page, /yAxisID: 'yAcq'/);
+  assert.match(page, /trendChart\('monthlyTrendChart', 'n',/);
+  assert.match(page, /trendChart\('monthlyAcqChart', 'acquisitions',/);
+  assert.match(page, /<canvas id="monthlyAcqChart">/);
+  assert.equal(page.includes('yAxisID'), false);
   assert.match(page, /x: yearAxis\(\)/);
-  assert.match(page, /scale\.grid\.drawOnChartArea = false/);
-  assert.match(page, /All loans use the left scale\. Acquisitions use the right scale\./);
+  assert.match(page, /other\.setActiveElements\(points\)/);
+  assert.equal(page.includes('use the right scale'), false);
 });
 
 test('category charts keep a row tall enough for every label', () => {
